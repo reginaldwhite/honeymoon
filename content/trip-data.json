@@ -1,0 +1,794 @@
+{
+  "title": "Kauaʻian Honeymoon",
+  "subtitle": "Mixing luxury and hiking and camping in one of the most beautiful places in the world",
+  "days": [
+    {
+      "id": "day-2009-05-27",
+      "date": "2009-05-27",
+      "title": "Travel",
+      "location": "Birmingham to Lihue",
+      "summary": "Flying across the country on a nice day",
+      "planningNotes": {
+        "rationale": "",
+        "bufferHours": 0
+      },
+      "activities": [
+        {
+          "id": "day-2009-05-27-activity-734bb171",
+          "time": "",
+          "title": "Airplane ride",
+          "description": "Luckily I was on the left side of the plane in the window seat!  Mary prefers the aisle - I'm so lucky.",
+          "interestTags": [],
+          "durationMinutes": 720,
+          "media": [
+            {
+              "id": "media-honeymoon-img-0208-cd34f491",
+              "kind": "image",
+              "publicId": "honeymoon/img-0208-cd34f491",
+              "alt": "",
+              "width": 1600,
+              "height": 1200,
+              "sourcePath": "IMG_0208.jpg"
+            },
+            {
+              "id": "media-honeymoon-img-0229-aa79b8fc",
+              "kind": "image",
+              "publicId": "honeymoon/img-0229-aa79b8fc",
+              "alt": "",
+              "width": 1600,
+              "height": 1200,
+              "sourcePath": "IMG_0229.jpg"
+            },
+            {
+              "id": "media-honeymoon-img-0213-02037a8e",
+              "kind": "image",
+              "publicId": "honeymoon/img-0213-02037a8e",
+              "alt": "",
+              "width": 1600,
+              "height": 1200,
+              "sourcePath": "IMG_0213.jpg"
+            }
+          ]
+        }
+      ],
+      "coverMedia": {
+        "id": "media-honeymoon-img-0226-5dcf514e",
+        "kind": "image",
+        "publicId": "honeymoon/img-0226-5dcf514e",
+        "alt": "",
+        "width": 1600,
+        "height": 1200,
+        "sourcePath": "IMG_0226.jpg"
+      }
+    },
+    {
+      "id": "day-2009-05-28",
+      "date": "2009-05-28",
+      "title": "Kalalau Trail Day 1",
+      "location": "",
+      "summary": "",
+      "planningNotes": {
+        "rationale": "",
+        "bufferHours": 0
+      },
+      "activities": [
+        {
+          "id": "day-2009-05-28-activity-655593ea",
+          "time": "",
+          "title": "Drive to the trailhead",
+          "description": "We stopped by our accommodations in Hanalei to drop off the rest of our luggage (Simon was happy to oblige).  Be sure to leave nothing in the rental car and leave it unlocked - there were reports of break ins at the trailhead.",
+          "interestTags": [],
+          "durationMinutes": 180,
+          "media": [
+            {
+              "id": "media-honeymoon-pict0923-9e9fd8f8",
+              "kind": "image",
+              "publicId": "honeymoon/pict0923-9e9fd8f8",
+              "alt": "",
+              "width": 2272,
+              "height": 1704,
+              "sourcePath": "PICT0923.JPG"
+            },
+            {
+              "id": "media-honeymoon-pict0938-07c6b0ca",
+              "kind": "image",
+              "publicId": "honeymoon/pict0938-07c6b0ca",
+              "alt": "",
+              "width": 2272,
+              "height": 1704,
+              "sourcePath": "PICT0938.JPG"
+            },
+            {
+              "id": "media-honeymoon-pict0922-56e462e4",
+              "kind": "image",
+              "publicId": "honeymoon/pict0922-56e462e4",
+              "alt": "",
+              "width": 2272,
+              "height": 1704,
+              "sourcePath": "PICT0922.JPG"
+            },
+            {
+              "id": "media-honeymoon-pict0926-a6428bab",
+              "kind": "image",
+              "publicId": "honeymoon/pict0926-a6428bab",
+              "alt": "",
+              "width": 2272,
+              "height": 1704,
+              "sourcePath": "PICT0926.JPG"
+            },
+            {
+              "id": "media-honeymoon-img-0232-87ab7b3f",
+              "kind": "image",
+              "publicId": "honeymoon/img-0232-87ab7b3f",
+              "alt": "",
+              "width": 1600,
+              "height": 1200,
+              "sourcePath": "IMG_0232.jpg"
+            }
+          ]
+        },
+        {
+          "id": "day-2009-05-28-activity-1e5f8ac2",
+          "time": "",
+          "title": "Hike to first campsite just past Hanakapia Falls",
+          "description": "Don't swim at the beach!  There is a trail to the falls but we didn't have time - it's about a hour out and back from the main trail.\r\nWe saw some endangered Monk seals from the trail!",
+          "interestTags": [],
+          "durationMinutes": 180,
+          "media": [
+            {
+              "id": "media-honeymoon-img-0241-a0231a71",
+              "kind": "image",
+              "publicId": "honeymoon/img-0241-a0231a71",
+              "alt": "",
+              "width": 1600,
+              "height": 1200,
+              "sourcePath": "IMG_0241.jpg"
+            },
+            {
+              "id": "media-honeymoon-pict1024-45d33d94",
+              "kind": "image",
+              "publicId": "honeymoon/pict1024-45d33d94",
+              "alt": "",
+              "width": 2272,
+              "height": 1704,
+              "sourcePath": "PICT1024.JPG"
+            },
+            {
+              "id": "media-honeymoon-img-0233-39a91deb",
+              "kind": "image",
+              "publicId": "honeymoon/img-0233-39a91deb",
+              "alt": "",
+              "width": 1600,
+              "height": 1200,
+              "sourcePath": "IMG_0233.jpg"
+            },
+            {
+              "id": "media-honeymoon-pict1008-288427cc",
+              "kind": "image",
+              "publicId": "honeymoon/pict1008-288427cc",
+              "alt": "",
+              "width": 2272,
+              "height": 1704,
+              "sourcePath": "PICT1008.JPG"
+            },
+            {
+              "id": "media-honeymoon-pict0965-51acc16f",
+              "kind": "image",
+              "publicId": "honeymoon/pict0965-51acc16f",
+              "alt": "",
+              "width": 2272,
+              "height": 1704,
+              "sourcePath": "PICT0965.JPG"
+            },
+            {
+              "id": "media-honeymoon-pict0966-af6cd4a1",
+              "kind": "image",
+              "publicId": "honeymoon/pict0966-af6cd4a1",
+              "alt": "",
+              "width": 2272,
+              "height": 1704,
+              "sourcePath": "PICT0966.JPG"
+            },
+            {
+              "id": "media-honeymoon-pict0975-2686f3bc",
+              "kind": "image",
+              "publicId": "honeymoon/pict0975-2686f3bc",
+              "alt": "",
+              "width": 2272,
+              "height": 1704,
+              "sourcePath": "PICT0975.JPG"
+            },
+            {
+              "id": "media-honeymoon-pict0981-fd93c827",
+              "kind": "image",
+              "publicId": "honeymoon/pict0981-fd93c827",
+              "alt": "",
+              "width": 2272,
+              "height": 1704,
+              "sourcePath": "PICT0981.JPG"
+            },
+            {
+              "id": "media-honeymoon-pict0997-a02861a0",
+              "kind": "image",
+              "publicId": "honeymoon/pict0997-a02861a0",
+              "alt": "",
+              "width": 2272,
+              "height": 1704,
+              "sourcePath": "PICT0997.JPG"
+            },
+            {
+              "id": "media-honeymoon-img-0267-47230d75",
+              "kind": "image",
+              "publicId": "honeymoon/img-0267-47230d75",
+              "alt": "",
+              "width": 1200,
+              "height": 1600,
+              "sourcePath": "IMG_0267.jpg"
+            },
+            {
+              "id": "media-honeymoon-pict1041-da3f743c",
+              "kind": "image",
+              "publicId": "honeymoon/pict1041-da3f743c",
+              "alt": "",
+              "width": 2272,
+              "height": 1704,
+              "sourcePath": "PICT1041.JPG"
+            },
+            {
+              "id": "media-honeymoon-pict1028-c516739d",
+              "kind": "image",
+              "publicId": "honeymoon/pict1028-c516739d",
+              "alt": "",
+              "width": 2272,
+              "height": 1704,
+              "sourcePath": "PICT1028.JPG"
+            }
+          ]
+        }
+      ],
+      "coverMedia": {
+        "id": "media-honeymoon-pict1000-10d52404",
+        "kind": "image",
+        "publicId": "honeymoon/pict1000-10d52404",
+        "alt": "",
+        "width": 2272,
+        "height": 1704,
+        "sourcePath": "PICT1000.JPG"
+      }
+    },
+    {
+      "id": "day-2009-05-29",
+      "date": "2009-05-29",
+      "title": "Kalalau Trail Day 2",
+      "location": "",
+      "summary": "",
+      "planningNotes": {
+        "rationale": "",
+        "bufferHours": 0
+      },
+      "activities": [
+        {
+          "id": "day-2009-05-29-activity-bd31760e",
+          "time": "",
+          "title": "",
+          "description": "",
+          "interestTags": [],
+          "durationMinutes": 60,
+          "media": [
+            {
+              "id": "media-honeymoon-img-0266-c61c376e",
+              "kind": "image",
+              "publicId": "honeymoon/img-0266-c61c376e",
+              "alt": "",
+              "width": 1600,
+              "height": 1200,
+              "sourcePath": "IMG_0266.jpg"
+            },
+            {
+              "id": "media-honeymoon-pict1042-d8ab27be",
+              "kind": "image",
+              "publicId": "honeymoon/pict1042-d8ab27be",
+              "alt": "",
+              "width": 2272,
+              "height": 1704,
+              "sourcePath": "PICT1042.JPG"
+            },
+            {
+              "id": "media-honeymoon-pict1062-1f2f1a19",
+              "kind": "image",
+              "publicId": "honeymoon/pict1062-1f2f1a19",
+              "alt": "",
+              "width": 2272,
+              "height": 1704,
+              "sourcePath": "PICT1062.JPG"
+            },
+            {
+              "id": "media-honeymoon-pict1071-6bf07255",
+              "kind": "image",
+              "publicId": "honeymoon/pict1071-6bf07255",
+              "alt": "",
+              "width": 2272,
+              "height": 1704,
+              "sourcePath": "PICT1071.JPG"
+            },
+            {
+              "id": "media-honeymoon-pict1084-b44360de",
+              "kind": "image",
+              "publicId": "honeymoon/pict1084-b44360de",
+              "alt": "",
+              "width": 2272,
+              "height": 1704,
+              "sourcePath": "PICT1084.JPG"
+            },
+            {
+              "id": "media-honeymoon-pict1092-a38b953b",
+              "kind": "image",
+              "publicId": "honeymoon/pict1092-a38b953b",
+              "alt": "",
+              "width": 2272,
+              "height": 1704,
+              "sourcePath": "PICT1092.JPG"
+            },
+            {
+              "id": "media-honeymoon-pict1088-2f9bf794",
+              "kind": "image",
+              "publicId": "honeymoon/pict1088-2f9bf794",
+              "alt": "",
+              "width": 2272,
+              "height": 1704,
+              "sourcePath": "PICT1088.JPG"
+            },
+            {
+              "id": "media-honeymoon-pict1087-c9c801f5",
+              "kind": "image",
+              "publicId": "honeymoon/pict1087-c9c801f5",
+              "alt": "",
+              "width": 2272,
+              "height": 1704,
+              "sourcePath": "PICT1087.JPG"
+            },
+            {
+              "id": "media-honeymoon-pict1102-b1bc4c03",
+              "kind": "image",
+              "publicId": "honeymoon/pict1102-b1bc4c03",
+              "alt": "",
+              "width": 2272,
+              "height": 1704,
+              "sourcePath": "PICT1102.JPG"
+            },
+            {
+              "id": "media-honeymoon-pict1108-d7338239",
+              "kind": "image",
+              "publicId": "honeymoon/pict1108-d7338239",
+              "alt": "",
+              "width": 2272,
+              "height": 1704,
+              "sourcePath": "PICT1108.JPG"
+            },
+            {
+              "id": "media-honeymoon-pict1119-01b9db29",
+              "kind": "image",
+              "publicId": "honeymoon/pict1119-01b9db29",
+              "alt": "",
+              "width": 2272,
+              "height": 1704,
+              "sourcePath": "PICT1119.JPG"
+            },
+            {
+              "id": "media-honeymoon-pict1124-9cb4e3bd",
+              "kind": "image",
+              "publicId": "honeymoon/pict1124-9cb4e3bd",
+              "alt": "",
+              "width": 2272,
+              "height": 1704,
+              "sourcePath": "PICT1124.JPG"
+            },
+            {
+              "id": "media-honeymoon-pict1136-ee5e115d",
+              "kind": "image",
+              "publicId": "honeymoon/pict1136-ee5e115d",
+              "alt": "",
+              "width": 2272,
+              "height": 1704,
+              "sourcePath": "PICT1136.JPG"
+            },
+            {
+              "id": "media-honeymoon-pict1138-efa007ba",
+              "kind": "image",
+              "publicId": "honeymoon/pict1138-efa007ba",
+              "alt": "",
+              "width": 2272,
+              "height": 1704,
+              "sourcePath": "PICT1138.JPG"
+            },
+            {
+              "id": "media-honeymoon-pict1156-c122960b",
+              "kind": "image",
+              "publicId": "honeymoon/pict1156-c122960b",
+              "alt": "",
+              "width": 2272,
+              "height": 1704,
+              "sourcePath": "PICT1156.JPG"
+            },
+            {
+              "id": "media-honeymoon-pict1147-181c7b8e",
+              "kind": "image",
+              "publicId": "honeymoon/pict1147-181c7b8e",
+              "alt": "",
+              "width": 2272,
+              "height": 1704,
+              "sourcePath": "PICT1147.JPG"
+            },
+            {
+              "id": "media-honeymoon-pict1150-65b997eb",
+              "kind": "image",
+              "publicId": "honeymoon/pict1150-65b997eb",
+              "alt": "",
+              "width": 2272,
+              "height": 1704,
+              "sourcePath": "PICT1150.JPG"
+            },
+            {
+              "id": "media-honeymoon-pict1161-1287c93e",
+              "kind": "image",
+              "publicId": "honeymoon/pict1161-1287c93e",
+              "alt": "",
+              "width": 2272,
+              "height": 1704,
+              "sourcePath": "PICT1161.JPG"
+            },
+            {
+              "id": "media-honeymoon-pict1167-116b3ff9",
+              "kind": "image",
+              "publicId": "honeymoon/pict1167-116b3ff9",
+              "alt": "",
+              "width": 2272,
+              "height": 1704,
+              "sourcePath": "PICT1167.JPG"
+            },
+            {
+              "id": "media-honeymoon-pict1166-f25a2b88",
+              "kind": "image",
+              "publicId": "honeymoon/pict1166-f25a2b88",
+              "alt": "",
+              "width": 2272,
+              "height": 1704,
+              "sourcePath": "PICT1166.JPG"
+            },
+            {
+              "id": "media-honeymoon-pict1174-89f7e2cb",
+              "kind": "image",
+              "publicId": "honeymoon/pict1174-89f7e2cb",
+              "alt": "",
+              "width": 2272,
+              "height": 1704,
+              "sourcePath": "PICT1174.JPG"
+            },
+            {
+              "id": "media-honeymoon-pict1179-c2bc94fa",
+              "kind": "image",
+              "publicId": "honeymoon/pict1179-c2bc94fa",
+              "alt": "",
+              "width": 2272,
+              "height": 1704,
+              "sourcePath": "PICT1179.JPG"
+            },
+            {
+              "id": "media-honeymoon-pict1189-1feb3683",
+              "kind": "image",
+              "publicId": "honeymoon/pict1189-1feb3683",
+              "alt": "",
+              "width": 2272,
+              "height": 1704,
+              "sourcePath": "PICT1189.JPG"
+            },
+            {
+              "id": "media-honeymoon-pict1192-a730ff29",
+              "kind": "image",
+              "publicId": "honeymoon/pict1192-a730ff29",
+              "alt": "",
+              "width": 2272,
+              "height": 1704,
+              "sourcePath": "PICT1192.JPG"
+            },
+            {
+              "id": "media-honeymoon-pict1204-0ff31460",
+              "kind": "image",
+              "publicId": "honeymoon/pict1204-0ff31460",
+              "alt": "",
+              "width": 2272,
+              "height": 1704,
+              "sourcePath": "PICT1204.JPG"
+            },
+            {
+              "id": "media-honeymoon-pict1214-3b359e19",
+              "kind": "image",
+              "publicId": "honeymoon/pict1214-3b359e19",
+              "alt": "",
+              "width": 2272,
+              "height": 1704,
+              "sourcePath": "PICT1214.JPG"
+            },
+            {
+              "id": "media-honeymoon-pict1216-9a6e0c4a",
+              "kind": "image",
+              "publicId": "honeymoon/pict1216-9a6e0c4a",
+              "alt": "",
+              "width": 2272,
+              "height": 1704,
+              "sourcePath": "PICT1216.JPG"
+            },
+            {
+              "id": "media-honeymoon-pict1228-8c38c13c",
+              "kind": "image",
+              "publicId": "honeymoon/pict1228-8c38c13c",
+              "alt": "",
+              "width": 2272,
+              "height": 1704,
+              "sourcePath": "PICT1228.JPG"
+            },
+            {
+              "id": "media-honeymoon-pict1248-c78b1c6e",
+              "kind": "image",
+              "publicId": "honeymoon/pict1248-c78b1c6e",
+              "alt": "",
+              "width": 2272,
+              "height": 1704,
+              "sourcePath": "PICT1248.JPG"
+            },
+            {
+              "id": "media-honeymoon-pict1244-554485c6",
+              "kind": "image",
+              "publicId": "honeymoon/pict1244-554485c6",
+              "alt": "",
+              "width": 2272,
+              "height": 1704,
+              "sourcePath": "PICT1244.JPG"
+            },
+            {
+              "id": "media-honeymoon-pict1249-730d777d",
+              "kind": "image",
+              "publicId": "honeymoon/pict1249-730d777d",
+              "alt": "",
+              "width": 2272,
+              "height": 1704,
+              "sourcePath": "PICT1249.JPG"
+            },
+            {
+              "id": "media-honeymoon-pict1246-a0394b5c",
+              "kind": "image",
+              "publicId": "honeymoon/pict1246-a0394b5c",
+              "alt": "",
+              "width": 2272,
+              "height": 1704,
+              "sourcePath": "PICT1246.JPG"
+            },
+            {
+              "id": "media-honeymoon-pict1256-49ee3160",
+              "kind": "image",
+              "publicId": "honeymoon/pict1256-49ee3160",
+              "alt": "",
+              "width": 2272,
+              "height": 1704,
+              "sourcePath": "PICT1256.JPG"
+            },
+            {
+              "id": "media-honeymoon-pict1262-c9d20a72",
+              "kind": "image",
+              "publicId": "honeymoon/pict1262-c9d20a72",
+              "alt": "",
+              "width": 2272,
+              "height": 1704,
+              "sourcePath": "PICT1262.JPG"
+            },
+            {
+              "id": "media-honeymoon-img-0281-90b3c0f0",
+              "kind": "image",
+              "publicId": "honeymoon/img-0281-90b3c0f0",
+              "alt": "",
+              "width": 1600,
+              "height": 1200,
+              "sourcePath": "IMG_0281.jpg"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "day-2009-05-30",
+      "date": "2009-05-30",
+      "title": "Kalalau Trail Day 3",
+      "location": "",
+      "summary": "",
+      "planningNotes": {
+        "rationale": "",
+        "bufferHours": 0
+      },
+      "activities": []
+    },
+    {
+      "id": "day-2009-05-31",
+      "date": "2009-05-31",
+      "title": "Kalalau Trail Day 4",
+      "location": "",
+      "summary": "",
+      "planningNotes": {
+        "rationale": "",
+        "bufferHours": 0
+      },
+      "activities": []
+    },
+    {
+      "id": "day-2009-06-01",
+      "date": "2009-06-01",
+      "title": "Surfboard House Day 1",
+      "location": "",
+      "summary": "",
+      "planningNotes": {
+        "rationale": "",
+        "bufferHours": 0
+      },
+      "activities": [
+        {
+          "id": "day-2009-06-01-activity-ca6ee4e5",
+          "time": "",
+          "title": "",
+          "description": "",
+          "interestTags": [],
+          "durationMinutes": 60,
+          "media": []
+        }
+      ],
+      "coverMedia": {
+        "id": "media-honeymoon-p1010124-3b94ade6",
+        "kind": "image",
+        "publicId": "honeymoon/p1010124-3b94ade6",
+        "alt": "",
+        "width": 3648,
+        "height": 2736,
+        "sourcePath": "P1010124.JPG"
+      }
+    },
+    {
+      "id": "day-2009-06-02",
+      "date": "2009-06-02",
+      "title": "Na Pali Coast Kayak",
+      "location": "Surfboard House",
+      "summary": "",
+      "planningNotes": {
+        "rationale": "",
+        "bufferHours": 0
+      },
+      "activities": []
+    },
+    {
+      "id": "day-2009-06-03",
+      "date": "2009-06-03",
+      "title": "Hanalei Bay ",
+      "location": "Surfboard House",
+      "summary": "",
+      "planningNotes": {
+        "rationale": "",
+        "bufferHours": 0
+      },
+      "activities": []
+    },
+    {
+      "id": "day-2009-06-04",
+      "date": "2009-06-04",
+      "title": "Drive to Waimai Canyon",
+      "location": "",
+      "summary": "",
+      "planningNotes": {
+        "rationale": "",
+        "bufferHours": 0
+      },
+      "activities": []
+    },
+    {
+      "id": "day-2009-06-05",
+      "date": "2009-06-05",
+      "title": "Alakai Swamp Trail",
+      "location": "Waimea Canyon",
+      "summary": "",
+      "planningNotes": {
+        "rationale": "",
+        "bufferHours": 0
+      },
+      "activities": []
+    },
+    {
+      "id": "day-2009-06-06",
+      "date": "2009-06-06",
+      "title": "Nualolo Cliff Trail",
+      "location": "",
+      "summary": "",
+      "planningNotes": {
+        "rationale": "",
+        "bufferHours": 0
+      },
+      "activities": []
+    },
+    {
+      "id": "day-2009-06-07",
+      "date": "2009-06-07",
+      "title": "Leave Waimea Canyon and go to Poipu Beach",
+      "location": "",
+      "summary": "",
+      "planningNotes": {
+        "rationale": "",
+        "bufferHours": 0
+      },
+      "activities": []
+    },
+    {
+      "id": "day-2009-06-08",
+      "date": "2009-06-08",
+      "title": "Poipu and Allerton Gardens",
+      "location": "",
+      "summary": "",
+      "planningNotes": {
+        "rationale": "",
+        "bufferHours": 0
+      },
+      "activities": []
+    },
+    {
+      "id": "day-2009-06-09",
+      "date": "2009-06-09",
+      "title": "Poipu day 2",
+      "location": "",
+      "summary": "Spouting horn",
+      "planningNotes": {
+        "rationale": "",
+        "bufferHours": 0
+      },
+      "activities": []
+    },
+    {
+      "id": "day-2009-06-10",
+      "date": "2009-06-10",
+      "title": "Poipu Day 3",
+      "location": "",
+      "summary": "",
+      "planningNotes": {
+        "rationale": "",
+        "bufferHours": 0
+      },
+      "activities": []
+    },
+    {
+      "id": "day-2009-06-11",
+      "date": "2009-06-11",
+      "title": "",
+      "location": "",
+      "summary": "",
+      "planningNotes": {
+        "rationale": "",
+        "bufferHours": 0
+      },
+      "activities": []
+    }
+  ],
+  "planning": {
+    "intro": "",
+    "principles": [
+      {
+        "id": "principle-21aeca67",
+        "title": "Develop around a few must haves first and plan around them",
+        "description": "We wanted to do the Kalalau trail and camp at the beach.  We also wanted to see Waimea canyon.  Both of those required permits from the state with ample lead time.  These activities were on opposite sides of the island by road, so this lead to a natural path between the two."
+      },
+      {
+        "id": "principle-ca671859",
+        "title": "Alternate between roughing it in the tent and luxury accomodations",
+        "description": "So much easier to do that second camping trip after a few days in a comfortable bed with a full stomach."
+      },
+      {
+        "id": "principle-5606fe74",
+        "title": "Be honest with yourself about your level of effort and number of activities",
+        "description": "We knew we could handle the hikes and the camping.  I still left room in the schedule for spontaneous decisions, like our visit to Kauaian Coffee and Ho'opi'i Falls"
+      }
+    ],
+    "tradeoffs": []
+  }
+}
