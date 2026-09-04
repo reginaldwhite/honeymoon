@@ -3,7 +3,7 @@ import { readFile, rename, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { randomUUID } from "node:crypto";
 import { sortActivities } from "@/lib/activity-order";
-import type { Activity, Day, MediaRef, Trip } from "@/content/types";
+import type { Activity, ChapterContent, Day, MediaRef, Trip } from "@/content/types";
 
 const TRIP_DATA_PATH = path.join(process.cwd(), "content", "trip-data.json");
 
@@ -25,9 +25,21 @@ export async function readTrip(): Promise<Trip> {
 function normalizeTrip(trip: Trip): Trip {
   return {
     ...trip,
-    days: trip.days ?? [],
+    headline: trip.headline ?? "",
+    place: trip.place ?? "",
+    overview: {
+      lede: trip.overview?.lede ?? "",
+      body: trip.overview?.body ?? [],
+      mapCaption: trip.overview?.mapCaption ?? "",
+      mapStops: trip.overview?.mapStops ?? [],
+    },
+    chapters: trip.chapters ?? [],
+    days: (trip.days ?? []).map((day) => ({ ...day, night: day.night ?? "none" })),
     planning: {
+      headline: trip.planning?.headline ?? "",
       intro: trip.planning?.intro ?? "",
+      nightsNote: trip.planning?.nightsNote ?? "",
+      timeBudgetNote: trip.planning?.timeBudgetNote ?? "",
       principles: trip.planning?.principles ?? [],
       tradeoffs: trip.planning?.tradeoffs ?? [],
     },
@@ -77,7 +89,7 @@ export async function withTrip<T>(
 }
 
 /** `day-YYYY-MM-DD` — stable as days are added, unlike a sequential number. */
-export function dayIdForDate(date: string): string {
+function dayIdForDate(date: string): string {
   return `day-${date}`;
 }
 
@@ -96,6 +108,8 @@ export function addMissingDays(trip: Trip, dates: string[]): Trip {
       summary: "",
       planningNotes: { rationale: "", bufferHours: 0 },
       activities: [],
+      // Unknown until authored; "none" keeps the derived night counts honest.
+      night: "none",
     });
   }
 
@@ -287,7 +301,7 @@ export interface AssignmentOption {
  * <optgroup> heading) and omitted in the itinerary editor, where the day is
  * already fixed by context.
  */
-export function getDayAssignmentOptions(
+function getDayAssignmentOptions(
   day: Day,
   index: number,
   withGroupLabel: boolean,
@@ -303,7 +317,7 @@ export function getDayAssignmentOptions(
   ];
 }
 
-export function formatDayOptionLabel(day: Day, index: number): string {
+function formatDayOptionLabel(day: Day, index: number): string {
   return `Day ${index + 1} · ${day.title || "Untitled day"}`;
 }
 
@@ -349,7 +363,20 @@ export function getAssignmentsBySourcePath(days: Day[]): Record<string, Assignme
   return map;
 }
 
-/** Patches the planning case-study content (intro, principles, tradeoffs). */
+/** Patches the overview copy that opens the site. */
+export function updateOverview(trip: Trip, patch: Partial<Trip["overview"]>): Trip {
+  return { ...trip, overview: { ...trip.overview, ...patch } };
+}
+
+/** Patches one chapter's authored copy and date range. Chapters are not added or removed here. */
+export function updateChapter(trip: Trip, chapterId: string, patch: Partial<ChapterContent>): Trip {
+  return {
+    ...trip,
+    chapters: trip.chapters.map((c) => (c.id === chapterId ? { ...c, ...patch } : c)),
+  };
+}
+
+/** Patches the planning case-study content (headline, intro, notes, principles, tradeoffs). */
 export function updatePlanning(trip: Trip, patch: Partial<Trip["planning"]>): Trip {
   return { ...trip, planning: { ...trip.planning, ...patch } };
 }

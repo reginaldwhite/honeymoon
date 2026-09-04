@@ -18,7 +18,6 @@ import { SortableMediaGrid, type MediaGridVariant } from "./sortable-media-grid"
  */
 export function ActivityMediaList({
   media,
-  dayId,
   targetKey,
   targetName,
   reorderable = true,
@@ -26,7 +25,6 @@ export function ActivityMediaList({
   className,
 }: {
   media: MediaRef[];
-  dayId: string;
   /** `${dayId}::cover` or `${dayId}::${activityId}` — where Add image assigns to. */
   targetKey: string;
   targetName: string;
@@ -50,7 +48,7 @@ export function ActivityMediaList({
             onClick={() => setShowDetails((open) => !open)}
             aria-expanded={showDetails}
             aria-controls={panelId}
-            className="flex flex-1 items-center gap-2 rounded-md py-0.5 text-left text-[11px] uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
+            className="flex flex-1 cursor-pointer items-center gap-2 rounded-md py-0.5 text-left text-[11px] uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
           >
             <ChevronDown
               aria-hidden
@@ -92,7 +90,6 @@ export function ActivityMediaList({
                 <MediaDetailsForm
                   key={item.id}
                   media={item}
-                  dayId={dayId}
                   targetKey={targetKey}
                   index={index}
                   total={media.length}

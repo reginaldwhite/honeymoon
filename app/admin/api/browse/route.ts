@@ -4,6 +4,7 @@ import {
   getLibraryEntries,
   getLibraryEntriesForDate,
   getLibraryGroups,
+  getUncertainLibraryEntries,
 } from "@/lib/photo-library";
 
 export type { LibraryEntry as BrowseEntry, LibraryGroupSummary } from "@/lib/photo-library";
@@ -15,6 +16,7 @@ const SEARCH_LIMIT = 300;
  *
  *   (no params)   -> the capture-date index: one row per day plus a count
  *   ?date=YYYY-MM-DD -> that day's entries, fetched as the section scrolls in
+ *   ?uncertain=1  -> entries whose capture date is known to be wrong
  *   ?q=term       -> filename matches across the library, capped
  *
  * Previously this returned every entry in the library on page load.
@@ -37,6 +39,10 @@ export async function GET(request: NextRequest) {
   const query = searchParams.get("q")?.trim().toLowerCase();
 
   try {
+    if (searchParams.get("uncertain") === "1") {
+      return NextResponse.json({ mode: "uncertain", entries: await getUncertainLibraryEntries() });
+    }
+
     if (date) {
       return NextResponse.json({ mode: "date", entries: await getLibraryEntriesForDate(date) });
     }

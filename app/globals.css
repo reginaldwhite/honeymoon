@@ -2,22 +2,60 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
-@custom-variant dark (&:is(.dark *));
+/*
+ * Classical: an editorial, book-like theme on a soft near-white ground.
+ * Cormorant Garamond headings over Lora body, hairline rules, and color
+ * applied as stroke rather than fill.
+ *
+ * The site was dark-only before; it is now light-only. There is no second
+ * palette to keep in sync, and no `dark` class on <html> — the shadcn
+ * primitives read these variables directly.
+ */
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   /*
-   * next/font exposes each family as --font-geist-sans / --font-geist-mono /
-   * --font-display on <html>. These must point AT those variables — a
-   * self-reference here (--font-sans: var(--font-sans)) is invalid at
-   * computed-value time and silently drops the whole family back to the
-   * browser default.
+   * next/font exposes the families as --font-cormorant / --font-lora on
+   * <html>. The role names below must point AT those, never at themselves —
+   * Tailwind emits this block into `:root`, and a self-reference there is
+   * invalid at computed-value time. (It only survived in the original handoff
+   * because next/font's unlayered declaration happens to outrank `@layer
+   * theme`, which is not a thing to lean on.) Declaring the roles here is also
+   * what emits the `font-heading` / `font-body` / `font-display` utilities.
    */
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-display: var(--font-display);
-  --font-heading: var(--font-display);
+  --font-sans: var(--font-lora);
+  --font-serif: var(--font-lora);
+  --font-body: var(--font-lora);
+  --font-display: var(--font-cormorant);
+  --font-heading: var(--font-cormorant);
+  --color-surface: var(--surface);
+  --color-divider: var(--divider);
+  /*
+   * Both ramps are exposed in full. A ramp step that exists in :root but not
+   * here produces a utility class (e.g. `text-accent-200`) that Tailwind
+   * silently drops, so the whole scale is declared rather than a hand-picked
+   * subset that has to be extended every time a component reaches for a new
+   * step.
+   */
+  --color-accent-100: var(--accent-100);
+  --color-accent-200: var(--accent-200);
+  --color-accent-300: var(--accent-300);
+  --color-accent-400: var(--accent-400);
+  --color-accent-500: var(--accent-500);
+  --color-accent-600: var(--accent-600);
+  --color-accent-700: var(--accent-700);
+  --color-accent-800: var(--accent-800);
+  --color-accent-900: var(--accent-900);
+  --color-neutral-100: var(--neutral-100);
+  --color-neutral-200: var(--neutral-200);
+  --color-neutral-300: var(--neutral-300);
+  --color-neutral-400: var(--neutral-400);
+  --color-neutral-500: var(--neutral-500);
+  --color-neutral-600: var(--neutral-600);
+  --color-neutral-700: var(--neutral-700);
+  --color-neutral-800: var(--neutral-800);
+  --color-neutral-900: var(--neutral-900);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -47,56 +85,87 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
+  --radius-sm: calc(var(--radius) * 0.5);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) * 1.75);
+  --radius-xl: calc(var(--radius) * 2.5);
 }
 
-/*
- * Editorial dark theme: near-black stage for photography, single coral accent.
- * This is the only palette — the site is deliberately dark-only, so there is no
- * second light set to keep in sync. The `dark` class stays on <html> because
- * the shadcn primitives target `dark:` variants.
- */
 :root {
-  color-scheme: dark;
+  color-scheme: light;
 
-  --background: oklch(0.11 0.006 40);
-  --foreground: oklch(0.96 0.004 60);
-  --card: oklch(0.16 0.008 40);
-  --card-foreground: oklch(0.96 0.004 60);
-  --popover: oklch(0.16 0.008 40);
-  --popover-foreground: oklch(0.96 0.004 60);
-  --primary: oklch(0.72 0.18 40);
-  --primary-foreground: oklch(0.14 0.02 40);
-  --secondary: oklch(0.24 0.01 40);
-  --secondary-foreground: oklch(0.96 0.004 60);
-  --muted: oklch(0.22 0.008 40);
-  --muted-foreground: oklch(0.64 0.012 60);
-  --accent: oklch(0.72 0.18 40);
-  --accent-foreground: oklch(0.14 0.02 40);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.72 0.18 40);
-  --chart-1: oklch(0.72 0.18 40);
-  --chart-2: oklch(0.7 0.11 195);
-  --chart-3: oklch(0.78 0.15 85);
-  --chart-4: oklch(0.62 0.09 155);
-  --chart-5: oklch(0.62 0.06 280);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.14 0.007 40);
-  --sidebar-foreground: oklch(0.96 0.004 60);
-  --sidebar-primary: oklch(0.72 0.18 40);
-  --sidebar-primary-foreground: oklch(0.14 0.02 40);
-  --sidebar-accent: oklch(0.24 0.01 40);
-  --sidebar-accent-foreground: oklch(0.96 0.004 60);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.72 0.18 40);
+  /*
+   * The sticky stack. The site header and the chapter bar pin one below the
+   * other, and if they do not meet exactly, page content flickers through the
+   * gap. Every height and offset involved reads from these three values —
+   * header `h-(--header-h)`, chapter bar `top-(--header-h) h-(--chapter-bar-h)`,
+   * chapter sections `scroll-mt-(--sticky-stack)` — so changing one number
+   * here changes all of them together.
+   */
+  --header-h: 56px;
+  --chapter-bar-h: 52px;
+  --sticky-stack: calc(var(--header-h) + var(--chapter-bar-h));
+
+  /* Classical roles */
+  --background: #f3f2f2;
+  --foreground: #201f1d;
+  --surface: #eae9e9;
+  --divider: color-mix(in srgb, #201f1d 16%, transparent);
+
+  /* Neutral ramp — OKLCH-generated on one shared lightness scale */
+  --neutral-100: #f8f4f4;
+  --neutral-200: #eae7e7;
+  --neutral-300: #d7d3d3;
+  --neutral-400: #bab6b6;
+  --neutral-500: #9b9797;
+  --neutral-600: #7d7979;
+  --neutral-700: #605d5d;
+  --neutral-800: #444141;
+  --neutral-900: #2d2b2b;
+
+  /* Accent ramp — the single gold. This is a mono scheme; there is no second accent. */
+  --accent-100: #fff3e4;
+  --accent-200: #ffe3bf;
+  --accent-300: #facb8d;
+  --accent-400: #e1ad66;
+  --accent-500: #c28d41;
+  --accent-600: #a06f24;
+  --accent-700: #7d5411;
+  --accent-800: #5a3b0a;
+  --accent-900: #3a270d;
+
+  /* shadcn surface mapping */
+  --card: transparent;
+  --card-foreground: #201f1d;
+  --popover: #f8f4f4;
+  --popover-foreground: #201f1d;
+  --primary: #b68235;
+  --primary-foreground: #f3f2f2;
+  --secondary: #eae9e9;
+  --secondary-foreground: #201f1d;
+  --muted: #eae7e7;
+  --muted-foreground: #605d5d;
+  --accent: #b68235;
+  --accent-foreground: #201f1d;
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: color-mix(in srgb, #201f1d 16%, transparent);
+  --input: color-mix(in srgb, #201f1d 24%, transparent);
+  --ring: #b68235;
+  --chart-1: #b68235;
+  --chart-2: #c28d41;
+  --chart-3: #e1ad66;
+  --chart-4: #9b9797;
+  --chart-5: #605d5d;
+  --radius: 4px;
+  --sidebar: #eae9e9;
+  --sidebar-foreground: #201f1d;
+  --sidebar-primary: #b68235;
+  --sidebar-primary-foreground: #f3f2f2;
+  --sidebar-accent: #eae7e7;
+  --sidebar-accent-foreground: #201f1d;
+  --sidebar-border: color-mix(in srgb, #201f1d 16%, transparent);
+  --sidebar-ring: #b68235;
+
 }
 
 @layer base {
@@ -105,29 +174,95 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-lora);
+    font-size: 15px;
+    line-height: 1.55;
   }
   html {
-    @apply font-sans;
+    font-family: var(--font-lora);
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-cormorant);
+    /* Bold is avoided: semibold is the ceiling for interface headings, and
+       display sizes go lighter still, to the normal cut. */
+    font-weight: 600;
+    line-height: 1.12;
+    letter-spacing: -0.015em;
+  }
+  /* Figures set tabular wherever they stand as numerals or columns; running
+     prose keeps Lora's text figures, whose tabular cut also widens word-spaces. */
+  .tnum {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
+  }
+  a {
+    color: var(--accent);
+    text-underline-offset: 3px;
+  }
+  a:hover {
+    color: var(--accent-700);
+  }
+  :focus {
+    outline: none;
+  }
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  ::selection {
+    background: color-mix(in srgb, var(--accent) 30%, transparent);
   }
 }
 
 /*
+ * The photograph mat. Every content photograph goes through this — a warm
+ * archival grade inside a thin surface-colored mat, like a tipped-in book
+ * plate. Lifted from the design system's styles.css so the app carries no
+ * dependency on that folder at build time.
+ */
+.plate {
+  filter: sepia(0.22) saturate(0.82) contrast(1.05);
+  box-sizing: border-box;
+  border: 6px solid var(--surface);
+  outline: 1px solid var(--divider);
+}
+
+/* A hairline rule — the structure of the page is carried by these. */
+.hr {
+  height: 1px;
+  border: 0;
+  margin: 1.15rem 0;
+  background: var(--divider);
+}
+
+/* The chapter-bar chip: an outlined small label, never filled with solid accent. */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  padding: 3px 10px;
+  border-radius: calc(var(--radius) * 0.75);
+}
+.tag-outline {
+  border: 1px solid var(--accent);
+  color: var(--accent);
+}
+
+/*
  * Scroll reveal, done entirely in CSS with a scroll-driven animation.
- *
- * The previous JS implementation serialized `opacity: 0` into the server
- * rendered HTML, so the whole timeline was invisible until React hydrated (and
- * permanently invisible without JS). Here the content is visible by default and
- * the animation is purely additive: browsers without `animation-timeline`
- * support, and anyone who prefers reduced motion, simply get the finished
- * state immediately.
+ * Content is visible by default and the animation is purely additive:
+ * browsers without `animation-timeline` support, and anyone who prefers
+ * reduced motion, get the finished state immediately.
  *
  * --reveal-offset staggers siblings by shifting the scroll range each one
  * animates over, which a scroll-driven animation uses in place of a delay.
+ * The <Reveal> component sets it.
  */
 @keyframes reveal-in {
   from {
     opacity: 0;
-    transform: translateY(24px);
+    transform: translateY(20px);
   }
   to {
     opacity: 1;
@@ -163,7 +298,7 @@ dialog {
 }
 
 dialog::backdrop {
-  background: oklch(0 0 0 / 0.9);
+  background: color-mix(in srgb, #2d2b2b 88%, transparent);
 }
 
 /* Prevent the page behind an open lightbox from scrolling. */

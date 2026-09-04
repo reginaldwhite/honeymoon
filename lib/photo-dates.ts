@@ -4,12 +4,12 @@
  * wrong calendar day. Map the raw captured date (YYYY-MM-DD) to the real date
  * the photos were actually taken.
  */
-export const DATE_CORRECTIONS: Record<string, string> = {
+const DATE_CORRECTIONS: Record<string, string> = {
   "2009-01-01": "2009-06-01",
 };
 
 /** Applies known camera-clock corrections to a YYYY-MM-DD date string. */
-export function correctCaptureDate(dateKey: string): string {
+function correctCaptureDate(dateKey: string): string {
   return DATE_CORRECTIONS[dateKey] ?? dateKey;
 }
 
@@ -23,7 +23,7 @@ export function captureDateKey(isoString: string): string {
  * ended June 10 2009; these could belong to any day). Shown as a shared pool
  * on every day's editor instead of grouped under a specific day.
  */
-export const UNCERTAIN_DATES = new Set(["2009-06-13"]);
+const UNCERTAIN_DATES = new Set(["2009-06-13"]);
 
 export function isUncertainDate(dateKey: string): boolean {
   return UNCERTAIN_DATES.has(dateKey);

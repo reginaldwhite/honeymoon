@@ -2,7 +2,7 @@ import "server-only";
 import { readdir, stat } from "node:fs/promises";
 import { extname, join, relative } from "node:path";
 import { mediaKindForExtension } from "@/lib/media-source";
-import { captureDateKey } from "@/lib/photo-dates";
+import { captureDateKey, isUncertainDate } from "@/lib/photo-dates";
 import { resolveSafePath } from "@/lib/safe-path";
 
 const MAX_RESULTS = 20000;
@@ -147,4 +147,10 @@ export async function getLibraryGroups(options?: {
 export async function getLibraryEntriesForDate(date: string): Promise<LibraryEntry[]> {
   const entries = await getLibraryEntries();
   return entries.filter((entry) => captureDateKey(entry.takenAt) === date);
+}
+
+/** Files with a known-bad timestamp that could belong to any day of the trip. */
+export async function getUncertainLibraryEntries(): Promise<LibraryEntry[]> {
+  const entries = await getLibraryEntries();
+  return entries.filter((entry) => isUncertainDate(captureDateKey(entry.takenAt)));
 }

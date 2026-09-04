@@ -5,21 +5,34 @@ import { Plus, Trash2 } from "lucide-react";
 import {
   removePrinciple,
   removeTradeoff,
+  saveChapter,
   savePrinciple,
   saveTradeoff,
-  updatePlanningIntro,
+  updateOverviewCopy,
+  updatePlanningCopy,
   updateTripMeta,
 } from "@/app/admin/story/actions";
 import { Button } from "@/components/ui/button";
 import { Field, FormStatus, SelectInput, TextArea, TextInput } from "@/components/ui/field";
-import type { PlanningPrinciple, Tradeoff } from "@/content/types";
+import type {
+  ChapterContent,
+  OverviewContent,
+  PlanningContent,
+  PlanningPrinciple,
+  Tradeoff,
+  Trip,
+} from "@/content/types";
 
 export interface MediaOption {
   value: string;
   label: string;
 }
 
-export function TripMetaForm({ title, subtitle }: { title: string; subtitle: string }) {
+export function TripMetaForm({
+  trip,
+}: {
+  trip: Pick<Trip, "title" | "headline" | "subtitle" | "place">;
+}) {
   const [state, formAction, pending] = useActionState(updateTripMeta, undefined);
 
   return (
@@ -28,17 +41,19 @@ export function TripMetaForm({ title, subtitle }: { title: string; subtitle: str
       className="flex flex-col gap-4 rounded-md border border-border bg-card/50 p-4"
     >
       <div className="grid gap-4 sm:grid-cols-2">
-        <Field label="Trip title" hint="Used as the site name and in the browser tab.">
-          <TextInput name="title" defaultValue={title} required />
+        <Field label="Site name" hint="The header and the browser tab.">
+          <TextInput name="title" defaultValue={trip.title} required />
         </Field>
-        <Field label="Subtitle" hint="One line under the title on the overview page.">
-          <TextInput
-            name="subtitle"
-            defaultValue={subtitle}
-            placeholder="e.g. Our honeymoon itinerary, two weeks on Kauaʻi"
-          />
+        <Field label="Place" hint="The eyebrow above the headline, e.g. Kauaʻi, Hawaiʻi.">
+          <TextInput name="place" defaultValue={trip.place} />
         </Field>
       </div>
+      <Field label="Headline" hint="The display line that opens the site. Falls back to the site name.">
+        <TextInput name="headline" defaultValue={trip.headline} />
+      </Field>
+      <Field label="Subtitle" hint="One line under the headline.">
+        <TextArea name="subtitle" defaultValue={trip.subtitle} rows={2} />
+      </Field>
       <div className="flex items-center gap-3">
         <Button type="submit" size="lg" disabled={pending}>
           {pending ? "Saving…" : "Save trip details"}
@@ -49,23 +64,104 @@ export function TripMetaForm({ title, subtitle }: { title: string; subtitle: str
   );
 }
 
-export function PlanningIntroForm({ intro }: { intro: string }) {
-  const [state, formAction, pending] = useActionState(updatePlanningIntro, undefined);
+export function OverviewForm({ overview }: { overview: OverviewContent }) {
+  const [state, formAction, pending] = useActionState(updateOverviewCopy, undefined);
 
   return (
     <form
       action={formAction}
       className="flex flex-col gap-4 rounded-md border border-border bg-card/50 p-4"
     >
-      <Field
-        label="Case-study intro"
-        hint="The opening paragraph of “How I planned this trip”. Leave blank to hide it."
-      >
-        <TextArea name="intro" defaultValue={intro} rows={4} />
+      <Field label="Lede" hint="The large opening paragraph beside the map.">
+        <TextArea name="lede" defaultValue={overview.lede} rows={3} />
+      </Field>
+      <Field label="Body" hint="Leave a blank line between paragraphs.">
+        <TextArea name="body" defaultValue={overview.body.join("\n\n")} rows={8} />
+      </Field>
+      <Field label="Map caption">
+        <TextInput name="mapCaption" defaultValue={overview.mapCaption} />
       </Field>
       <div className="flex items-center gap-3">
         <Button type="submit" size="lg" disabled={pending}>
-          {pending ? "Saving…" : "Save intro"}
+          {pending ? "Saving…" : "Save overview"}
+        </Button>
+        <FormStatus state={state} />
+      </div>
+    </form>
+  );
+}
+
+export function ChapterEditor({ chapter, position }: { chapter: ChapterContent; position: number }) {
+  const [state, formAction, pending] = useActionState(saveChapter, undefined);
+
+  return (
+    <form
+      action={formAction}
+      className="flex flex-col gap-3 rounded-md border border-border bg-card/50 p-4"
+    >
+      <input type="hidden" name="chapterId" value={chapter.id} />
+      <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
+        Chapter {position}
+      </p>
+      <div className="grid gap-3 sm:grid-cols-[1fr_180px]">
+        <Field label="Title">
+          <TextInput name="title" defaultValue={chapter.title} required />
+        </Field>
+        <Field label="Chapter-bar label" hint="Short — it has to fit in a chip.">
+          <TextInput name="chip" defaultValue={chapter.chip} required />
+        </Field>
+      </div>
+      <Field label="Note" hint="Why this stretch mattered. Shown under the chapter title.">
+        <TextArea name="note" defaultValue={chapter.note} rows={2} />
+      </Field>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <Field label="First day" hint="Days are filed into chapters by date.">
+          <TextInput type="date" name="start" defaultValue={chapter.start} required />
+        </Field>
+        <Field label="Last day">
+          <TextInput type="date" name="end" defaultValue={chapter.end} required />
+        </Field>
+      </div>
+      <div className="flex items-center gap-3">
+        <Button type="submit" variant="outline" disabled={pending}>
+          {pending ? "Saving…" : "Save chapter"}
+        </Button>
+        <FormStatus state={state} />
+      </div>
+    </form>
+  );
+}
+
+export function PlanningCopyForm({
+  planning,
+}: {
+  planning: Pick<PlanningContent, "headline" | "intro" | "nightsNote" | "timeBudgetNote">;
+}) {
+  const [state, formAction, pending] = useActionState(updatePlanningCopy, undefined);
+
+  return (
+    <form
+      action={formAction}
+      className="flex flex-col gap-4 rounded-md border border-border bg-card/50 p-4"
+    >
+      <Field label="Headline" hint="The display line at the top of the planning page.">
+        <TextInput name="headline" defaultValue={planning.headline} />
+      </Field>
+      <Field label="Intro" hint="The opening paragraph. Leave blank to hide it.">
+        <TextArea name="intro" defaultValue={planning.intro} rows={3} />
+      </Field>
+      <Field
+        label="Nights note"
+        hint="Follows the derived sentence “N nights in a tent, M in a bed, across D days.”"
+      >
+        <TextInput name="nightsNote" defaultValue={planning.nightsNote} />
+      </Field>
+      <Field label="Time budget note" hint="Introduces the time-budget chart.">
+        <TextArea name="timeBudgetNote" defaultValue={planning.timeBudgetNote} rows={2} />
+      </Field>
+      <div className="flex items-center gap-3">
+        <Button type="submit" size="lg" disabled={pending}>
+          {pending ? "Saving…" : "Save planning copy"}
         </Button>
         <FormStatus state={state} />
       </div>

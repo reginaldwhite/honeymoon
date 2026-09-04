@@ -10,7 +10,16 @@
  * local admin tool (app/admin), so everything here must be JSON-serializable.
  */
 
+import type { StopName } from "./kauai-geometry";
+
 export type MediaKind = "image" | "video";
+
+/**
+ * Where we slept at the END of a day. Night counts everywhere are sums of
+ * this over days, so adding or deleting a day changes them by construction —
+ * nothing stores a night total. The flight home is "none".
+ */
+export type NightKind = "tent" | "bed" | "none";
 
 export interface MediaRef {
   /** Stable id, unique across the whole trip. Referenced by PlanningPrinciple.mediaId. */
@@ -66,6 +75,45 @@ export interface Day {
   coverMedia?: MediaRef;
   planningNotes: DayPlanningNotes;
   activities: Activity[];
+  night: NightKind;
+}
+
+/**
+ * A chapter of the trip: a stretch of days grouped by where we were staying.
+ * Days are claimed by inclusive ISO date range, so a day added or removed in
+ * the admin editor never needs re-filing as long as it falls inside a range.
+ *
+ * `stops` are places marked on the chapter's map, named against the projected
+ * coordinates in kauai-geometry.ts. There is deliberately no route line — the
+ * honest options are real track geometry or nothing, and straight lines
+ * between waypoints are neither the trail nor the road.
+ */
+export interface ChapterContent {
+  id: string;
+  title: string;
+  /** Short label for the sticky chapter nav. */
+  chip: string;
+  /** Why this stretch mattered. */
+  note: string;
+  /** Inclusive ISO date bounds. */
+  start: string;
+  end: string;
+  /** Sub-rectangle of KAUAI_VIEWBOX to crop this chapter's map to. */
+  mapView: string;
+  /** Marked places. `slept` gets a larger mark than a place we passed through. */
+  stops: { at: StopName; slept?: boolean }[];
+}
+
+/** The overview that opens the site, above the chapters. */
+export interface OverviewContent {
+  /** The large opening paragraph. */
+  lede: string;
+  /** Body paragraphs beneath the lede. */
+  body: string[];
+  /** Caption under the island map. */
+  mapCaption: string;
+  /** Places marked on the overview map; `r` is the mark radius (emphasis). */
+  mapStops: { at: StopName; r: number }[];
 }
 
 export interface PlanningPrinciple {
@@ -83,14 +131,27 @@ export interface Tradeoff {
 }
 
 export interface PlanningContent {
+  /** Display heading of the planning page. */
+  headline: string;
   intro: string;
+  /** Sentence beside the nights chart, after the derived counts. */
+  nightsNote: string;
+  /** Sentence introducing the time budget. */
+  timeBudgetNote: string;
   principles: PlanningPrinciple[];
   tradeoffs: Tradeoff[];
 }
 
 export interface Trip {
+  /** Site name — header and browser tab. */
   title: string;
+  /** Display line that opens the site; falls back to `title` when empty. */
+  headline: string;
   subtitle: string;
+  /** "Kauaʻi, Hawaiʻi" — the eyebrow above the headline. */
+  place: string;
+  overview: OverviewContent;
+  chapters: ChapterContent[];
   /**
    * Start/end dates are NOT stored — they are derived from the days themselves
    * (see lib/content.ts `getTripDateRange`) so they cannot drift from the data.

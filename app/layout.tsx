@@ -1,22 +1,29 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Fraunces } from "next/font/google";
+import { Cormorant_Garamond, Lora } from "next/font/google";
 import { trip } from "@/content/trip";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+/**
+ * Classical's pairing: Cormorant Garamond for headings over Lora for body.
+ * Bold is avoided throughout — semibold is the ceiling for interface headings,
+ * and display sizes take the normal cut, so only 400/600 are loaded.
+ *
+ * Cormorant's italic is loaded as well: the public pages never set it, but the
+ * dev-only admin still uses `font-display italic` on its headings, and without
+ * the real cut the browser synthesizes a slanted roman.
+ */
+const cormorant = Cormorant_Garamond({
+  variable: "--font-cormorant",
   subsets: ["latin"],
+  weight: ["400", "600"],
+  style: ["normal", "italic"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const lora = Lora({
+  variable: "--font-lora",
   subsets: ["latin"],
-});
-
-const fraunces = Fraunces({
-  variable: "--font-display",
-  subsets: ["latin"],
-  axes: ["opsz", "SOFT", "WONK"],
+  weight: ["400", "600"],
+  style: ["normal", "italic"],
 });
 
 /**
@@ -41,10 +48,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html
-      lang="en"
-      className={`dark ${geistSans.variable} ${geistMono.variable} ${fraunces.variable} h-full antialiased`}
-    >
+    <html lang="en" className={`${cormorant.variable} ${lora.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col">{children}</body>
     </html>
   );

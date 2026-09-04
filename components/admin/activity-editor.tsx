@@ -76,7 +76,6 @@ export function ActivityEditor({ dayId, activity }: { dayId: string; activity: A
 
       <ActivityMediaList
         media={activity.media}
-        dayId={dayId}
         targetKey={`${dayId}::${activity.id}`}
         targetName={activity.title || "Untitled activity"}
         className="border-t border-border pt-3"

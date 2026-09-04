@@ -23,13 +23,11 @@ import { rawMediaUrl } from "./raw-media-url";
  */
 export function MediaDetailsForm({
   media,
-  dayId,
   targetKey,
   index,
   total,
 }: {
   media: MediaRef;
-  dayId: string;
   targetKey: string;
   index: number;
   total: number;
@@ -117,7 +115,6 @@ export function MediaDetailsForm({
       <div className="flex min-w-0 flex-1 flex-col gap-3">
         <form action={formAction} className="flex flex-col gap-3">
           <input type="hidden" name="mediaId" value={media.id} />
-          <input type="hidden" name="dayId" value={dayId} />
 
           <Field
             label={

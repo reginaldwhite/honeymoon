@@ -21,7 +21,7 @@ export default async function AdminHomePage() {
       href: "/admin/itinerary",
       title: "Itinerary editor",
       description:
-        "Edit day copy, activities, alt text, and choose which photos represent each day.",
+        "The trip page as the reader sees it — overview, chapters, days — with Edit on each part.",
       stat: `${days.length} days · ${daysWithTitle} titled · ${daysWithActivities} with activities`,
     },
     {
@@ -33,9 +33,9 @@ export default async function AdminHomePage() {
     },
     {
       href: "/admin/story",
-      title: "Story & planning",
+      title: "Planning page",
       description:
-        "The trip's name, the case-study intro, planning principles, and the trade-offs behind them.",
+        "The case study: planning principles, the trade-offs behind them, and the copy around the charts.",
       stat:
         planningPieces > 0
           ? `${principles.length} principles · ${tradeoffs.length} trade-offs`

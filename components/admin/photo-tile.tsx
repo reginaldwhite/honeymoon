@@ -160,7 +160,7 @@ export function PhotoTile({
             aria-label={
               assignedHere ? `Remove ${entry.name} from this activity` : `Add ${entry.name}`
             }
-            className={frameClasses}
+            className={cn(frameClasses, "cursor-pointer")}
           >
             {thumbnail}
             {assignedHere && (

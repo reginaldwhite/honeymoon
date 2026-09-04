@@ -44,11 +44,3 @@ export function getTripDateRange(
     end: source.days[source.days.length - 1].date,
   };
 }
-
-/** A day counts as authored once it has any copy or content worth showing. */
-export function isDayAuthored(source: Trip = trip): boolean {
-  return source.days.some(
-    (day) => day.title || day.summary || day.activities.length > 0 || day.coverMedia,
-  );
-}
-

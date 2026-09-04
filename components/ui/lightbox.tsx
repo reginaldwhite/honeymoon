@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { X } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 /**
  * A modal built on the native <dialog> element, which provides the focus trap,
@@ -50,7 +51,8 @@ export function Lightbox({
         }}
         aria-label={triggerLabel}
         aria-haspopup="dialog"
-        className={triggerClassName}
+        // A hand cursor is the only hint a photograph gives that it opens larger.
+        className={cn("cursor-pointer", triggerClassName)}
       >
         {trigger}
       </button>
@@ -73,7 +75,7 @@ export function Lightbox({
                 type="button"
                 onClick={() => setOpen(false)}
                 aria-label="Close"
-                className="absolute -top-3 -right-3 flex size-9 items-center justify-center rounded-full bg-white text-black shadow-lg transition-transform hover:scale-105 focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
+                className="absolute -top-3 -right-3 flex size-9 cursor-pointer items-center justify-center rounded-full bg-white text-black shadow-lg transition-transform hover:scale-105 focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
               >
                 <X className="size-4" aria-hidden />
               </button>

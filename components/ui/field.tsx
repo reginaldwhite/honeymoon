@@ -10,35 +10,24 @@ import { cn } from "@/lib/utils";
 const controlClasses =
   "w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground normal-case outline-none transition-colors placeholder:text-muted-foreground/60 focus-visible:border-primary focus-visible:ring-3 focus-visible:ring-ring/30 disabled:opacity-50";
 
+/** A label wrapping its control, so clicking the caption focuses the field. */
 export function Field({
   label,
   hint,
-  htmlFor,
   className,
   children,
 }: {
   label: ReactNode;
   hint?: ReactNode;
-  htmlFor?: string;
   className?: string;
   children: ReactNode;
 }) {
-  const Wrapper = htmlFor ? "div" : "label";
   return (
-    <Wrapper className={cn("flex flex-col gap-1.5", className)}>
-      {htmlFor ? (
-        <label
-          htmlFor={htmlFor}
-          className="text-[11px] uppercase tracking-wide text-muted-foreground"
-        >
-          {label}
-        </label>
-      ) : (
-        <span className="text-[11px] uppercase tracking-wide text-muted-foreground">{label}</span>
-      )}
+    <label className={cn("flex flex-col gap-1.5", className)}>
+      <span className="text-[11px] uppercase tracking-wide text-muted-foreground">{label}</span>
       {children}
       {hint && <span className="text-[11px] text-muted-foreground/80">{hint}</span>}
-    </Wrapper>
+    </label>
   );
 }
 

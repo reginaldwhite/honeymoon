@@ -9,21 +9,6 @@ function utcDate(isoDate: string): Date {
   return new Date(`${isoDate}T00:00:00Z`);
 }
 
-const dayFormatter = new Intl.DateTimeFormat("en-US", {
-  weekday: "long",
-  month: "long",
-  day: "numeric",
-  timeZone: "UTC",
-});
-
-const dayWithYearFormatter = new Intl.DateTimeFormat("en-US", {
-  weekday: "long",
-  month: "long",
-  day: "numeric",
-  year: "numeric",
-  timeZone: "UTC",
-});
-
 const shortDayFormatter = new Intl.DateTimeFormat("en-US", {
   month: "short",
   day: "numeric",
@@ -36,16 +21,6 @@ const monthDayYearFormatter = new Intl.DateTimeFormat("en-US", {
   year: "numeric",
   timeZone: "UTC",
 });
-
-/** "Wednesday, May 27" */
-export function formatDayDate(isoDate: string): string {
-  return dayFormatter.format(utcDate(isoDate));
-}
-
-/** "Wednesday, May 27, 2009" */
-export function formatDayDateWithYear(isoDate: string): string {
-  return dayWithYearFormatter.format(utcDate(isoDate));
-}
 
 /** "May 27" */
 export function formatShortDate(isoDate: string): string {

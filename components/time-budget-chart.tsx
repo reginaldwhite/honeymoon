@@ -1,48 +1,50 @@
 import { formatHours } from "@/lib/format";
 import type { TimeBudgetCategory } from "@/lib/time-budget";
-
-const BAR_COLORS = [
-  "var(--chart-1)",
-  "var(--chart-2)",
-  "var(--chart-3)",
-  "var(--chart-4)",
-  "var(--chart-5)",
-];
+import { SmallCaps } from "./typography";
 
 /**
- * Horizontal bars in plain CSS, server-rendered.
+ * The time budget as hairline bars.
  *
- * This was a Recharts bar chart behind a `ssr: false` dynamic import, which
- * shipped roughly 300KB of charting library — and a blank skeleton until it
- * loaded — to draw five static bars. The markup here is a list, so the numbers
- * are readable as text without any of that.
+ * Restyled for Classical: bars are drawn with a 1px accent border over a faint
+ * accent tint rather than filled with solid color, and the figures set tabular
+ * so the column reads as a column. The markup is a list, so the numbers are
+ * readable as text without any of it.
  */
 export function TimeBudgetChart({ data }: { data: TimeBudgetCategory[] }) {
   if (data.length === 0) return null;
 
   const max = Math.max(...data.map((entry) => entry.hours), 1);
+  const total = data.reduce((sum, entry) => sum + entry.hours, 0);
 
   return (
-    <ul className="flex flex-col gap-3">
-      {data.map((entry, index) => (
-        <li key={entry.category} className="grid grid-cols-[minmax(0,9rem)_1fr_auto] items-center gap-3">
-          <span className="truncate text-xs text-foreground" title={entry.category}>
-            {entry.category}
-          </span>
-          <span aria-hidden className="h-2.5 overflow-hidden rounded-full bg-secondary">
-            <span
-              className="block h-full rounded-full"
+    <div className="flex flex-col">
+      {data.map((entry) => (
+        <div
+          key={entry.category}
+          className="grid items-center gap-4 border-b border-divider py-3 last:border-b-0"
+          style={{ gridTemplateColumns: "minmax(120px,180px) minmax(0,1fr) 56px" }}
+        >
+          <span className="text-sm">{entry.category}</span>
+
+          <div aria-hidden className="relative h-6 border-b border-neutral-300">
+            <div
+              className="absolute inset-y-0 left-0"
               style={{
-                width: `${Math.max((entry.hours / max) * 100, 1)}%`,
-                background: BAR_COLORS[index % BAR_COLORS.length],
+                width: `${Math.max(2, Math.round((entry.hours / max) * 100))}%`,
+                border: "1px solid var(--accent)",
+                background: "color-mix(in srgb, var(--accent) 14%, transparent)",
               }}
             />
-          </span>
-          <span className="w-12 text-right font-mono text-xs text-muted-foreground">
-            {formatHours(entry.hours)}
-          </span>
-        </li>
+          </div>
+
+          <SmallCaps className="text-right tracking-[0.12em]">{formatHours(entry.hours)}</SmallCaps>
+        </div>
       ))}
-    </ul>
+
+      <SmallCaps as="p" className="mt-4 tracking-[0.14em]">
+        {formatHours(total)} accounted for across {data.length}{" "}
+        {data.length === 1 ? "category" : "categories"}
+      </SmallCaps>
+    </div>
   );
 }

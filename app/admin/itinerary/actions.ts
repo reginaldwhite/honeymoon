@@ -29,7 +29,7 @@ import {
   withTrip,
 } from "@/lib/trip-repository";
 import { interests } from "@/content/interests";
-import type { MediaRef } from "@/content/types";
+import type { MediaRef, NightKind } from "@/content/types";
 
 export type ItineraryActionState = { error?: string; success?: string } | undefined;
 
@@ -77,11 +77,16 @@ export async function updateDayDetails(
   const dayId = text(formData, "dayId");
   if (!dayId) return { error: "Missing dayId" };
 
+  const nightRaw = text(formData, "night");
+  const night: NightKind =
+    nightRaw === "tent" || nightRaw === "bed" ? nightRaw : "none";
+
   await withTrip((trip) =>
     updateDay(trip, dayId, {
       title: text(formData, "title"),
       location: text(formData, "location"),
       summary: text(formData, "summary"),
+      night,
       planningNotes: {
         rationale: text(formData, "rationale"),
         // Booked hours are derived from activity durations, so only the
@@ -91,7 +96,8 @@ export async function updateDayDetails(
     }),
   );
 
-  revalidatePath(`/admin/itinerary/${dayId}`);
+  revalidatePath("/admin/itinerary");
+  revalidatePath("/planning");
   return { success: "Saved." };
 }
 
@@ -107,7 +113,7 @@ export async function addActivity(
 
   await withTrip((trip) => addActivityToTrip(trip, dayId));
 
-  revalidatePath(`/admin/itinerary/${dayId}`);
+  revalidatePath("/admin/itinerary");
   return { success: "Activity added." };
 }
 
@@ -138,7 +144,7 @@ export async function updateActivity(
     }),
   );
 
-  revalidatePath(`/admin/itinerary/${dayId}`);
+  revalidatePath("/admin/itinerary");
   return { success: "Saved." };
 }
 
@@ -162,7 +168,7 @@ export async function removeActivity(
   await withTrip((current) => removeActivityFromTrip(current, dayId, activityId));
   await Promise.all(orphaned.map((media) => removeMediaSourceFile(media.publicId, media.kind)));
 
-  revalidatePath(`/admin/itinerary/${dayId}`);
+  revalidatePath("/admin/itinerary");
   revalidatePath("/admin/library");
   return { success: "Activity removed." };
 }
@@ -176,7 +182,6 @@ export async function updateMediaDetails(
   if (guard) return guard;
 
   const mediaId = text(formData, "mediaId");
-  const dayId = text(formData, "dayId");
   if (!mediaId) return { error: "Missing mediaId" };
 
   const caption = text(formData, "caption");
@@ -187,7 +192,7 @@ export async function updateMediaDetails(
     }),
   );
 
-  if (dayId) revalidatePath(`/admin/itinerary/${dayId}`);
+  revalidatePath("/admin/itinerary");
   return { success: "Saved." };
 }
 
@@ -274,7 +279,7 @@ export async function assignLibraryPhotoToTarget(
   if (displaced) await removeMediaSourceFile(displaced.publicId, displaced.kind);
 
   revalidatePath("/admin/library");
-  revalidatePath(`/admin/itinerary/${dayId}`);
+  revalidatePath("/admin/itinerary");
   return { success: "Photo assigned." };
 }
 
@@ -297,7 +302,7 @@ export async function moveMediaToPosition(input: {
 
   await withTrip((trip) => moveMedia(trip, input.mediaId, dayId, target, input.index));
 
-  revalidatePath(`/admin/itinerary/${dayId}`);
+  revalidatePath("/admin/itinerary");
   revalidatePath("/admin/library");
   return { success: "Moved." };
 }

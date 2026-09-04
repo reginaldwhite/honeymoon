@@ -1,4 +1,5 @@
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
+import { cn } from "@/lib/utils";
 
 /**
  * Scroll-triggered fade/rise-in wrapper.
@@ -10,24 +11,29 @@ import type { ReactNode } from "react";
  *
  * `index` staggers siblings — a scroll-driven animation has no notion of a time
  * delay, so each sibling animates over a slightly later slice of scroll instead.
+ * `as` lets the revealed element be the semantic one (an article, a quote)
+ * rather than a wrapper div around it, which matters when the element is also
+ * a grid container.
  */
 export function Reveal({
-  children,
+  as: Tag = "div",
   index = 0,
   className,
+  children,
+  ...rest
 }: {
-  children: ReactNode;
+  as?: "div" | "article" | "section" | "blockquote";
   index?: number;
   className?: string;
+  children: ReactNode;
+  id?: string;
 }) {
-  const offset = Math.min(index * 6, 24);
+  const offset = Math.min(index, 4) * 3;
+  const style = offset ? ({ "--reveal-offset": `${offset}%` } as CSSProperties) : undefined;
 
   return (
-    <div
-      className={className ? `reveal ${className}` : "reveal"}
-      style={offset ? ({ "--reveal-offset": `${offset}%` } as React.CSSProperties) : undefined}
-    >
+    <Tag className={cn("reveal", className)} style={style} {...rest}>
       {children}
-    </div>
+    </Tag>
   );
 }

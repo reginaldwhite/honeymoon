@@ -3,7 +3,7 @@
 import { useActionState } from "react";
 import { updateDayDetails } from "@/app/admin/itinerary/actions";
 import { Button } from "@/components/ui/button";
-import { Field, FormStatus, TextArea, TextInput } from "@/components/ui/field";
+import { Field, FormStatus, SelectInput, TextArea, TextInput } from "@/components/ui/field";
 import { formatHours } from "@/lib/format";
 import type { Day } from "@/content/types";
 
@@ -33,6 +33,17 @@ export function DayDetailsForm({ day, bookedHours }: { day: Day; bookedHours: nu
           rows={2}
           placeholder="A sentence or two about the day, shown under the title on the timeline."
         />
+      </Field>
+
+      <Field
+        label="Where the day ended"
+        hint="Night counts on the planning page are summed from this, so deleting a day just removes its night."
+      >
+        <SelectInput name="night" defaultValue={day.night}>
+          <option value="bed">In a bed</option>
+          <option value="tent">In a tent</option>
+          <option value="none">No night — travel day</option>
+        </SelectInput>
       </Field>
 
       <Field

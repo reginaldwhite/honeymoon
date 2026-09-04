@@ -7,8 +7,8 @@ import type { MediaKind } from "@/content/types";
 /** Where staged local photos/videos live before being uploaded to Cloudinary. */
 export const MEDIA_SOURCE_DIR = "media-source";
 
-export const IMAGE_EXTENSIONS = [".jpg", ".jpeg", ".png", ".webp", ".heic"];
-export const VIDEO_EXTENSIONS = [".mp4", ".mov", ".m4v", ".avi"];
+const IMAGE_EXTENSIONS = [".jpg", ".jpeg", ".png", ".webp", ".heic"];
+const VIDEO_EXTENSIONS = [".mp4", ".mov", ".m4v", ".avi"];
 
 /** Content-Type lookup for streaming media files back to the browser. */
 export const MEDIA_MIME_TYPES: Record<string, string> = {
