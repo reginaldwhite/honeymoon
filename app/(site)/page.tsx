@@ -1,4 +1,4 @@
-import { getChaptersWithDays } from "@/content/chapters";
+import { getChapters } from "@/content/chapters";
 import { Timeline } from "@/components/timeline";
 import { TripOpening } from "@/components/trip-opening";
 
@@ -13,7 +13,7 @@ import { TripOpening } from "@/components/trip-opening";
 export default function HomePage() {
   return (
     <>
-      <TripOpening chapters={getChaptersWithDays()} />
+      <TripOpening chapters={getChapters()} />
       <Timeline />
     </>
   );

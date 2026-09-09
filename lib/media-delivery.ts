@@ -8,6 +8,7 @@ import {
   isCloudinaryConfigured,
 } from "@/lib/cloudinary";
 import { isProductionRuntime } from "@/lib/dev-only";
+import { derivativePath, getManifestEntry, pickWidth } from "@/lib/media-manifest";
 import { resolveSafePath } from "@/lib/safe-path";
 import type { MediaRef } from "@/content/types";
 
@@ -51,13 +52,16 @@ function localUrl(path: string, version: number, width?: number): string {
  * Decides where a photo's bytes come from, in priority order:
  *
  *   1. The local library, in development. Lets the whole site be authored and
- *      reviewed with the real photos before anything is uploaded — the resize
- *      is done on demand by the raw route, standing in for Cloudinary.
- *   2. Cloudinary signed URLs, whenever credentials are configured. This is
- *      always what a production build uses.
- *   3. Nothing, so the caller renders a placeholder.
+ *      reviewed with the real photos — the resize is done on demand by the
+ *      raw route, standing in for the rendered files.
+ *   2. The WebP derivatives shipped with the site, for any photograph in
+ *      content/media-manifest.json (see lib/media-manifest.ts). This is what
+ *      a deployed site uses; the files are static, behind the same gate as
+ *      every page.
+ *   3. Cloudinary signed URLs, whenever credentials are configured.
+ *   4. Nothing, so the caller renders a placeholder.
  *
- * To preview real Cloudinary delivery while developing, unset PHOTO_SOURCE_DIR.
+ * To preview the shipped derivatives while developing, unset PHOTO_SOURCE_DIR.
  */
 export function resolveMedia(media: MediaRef): ResolvedMedia | null {
   const local = findLocalCopy(media);
@@ -74,6 +78,16 @@ export function resolveMedia(media: MediaRef): ResolvedMedia | null {
         (width) => `${localUrl(local.path, local.version, width)} ${width}w`,
       ).join(", "),
       fullSrc: localUrl(local.path, local.version, 2000),
+    };
+  }
+
+  const shipped = media.kind === "image" ? getManifestEntry(media.publicId) : undefined;
+  if (shipped) {
+    const url = (width: number) => derivativePath(media.publicId, shipped.hash, width);
+    return {
+      thumbSrc: url(pickWidth(shipped.widths, 800)),
+      thumbSrcSet: shipped.widths.map((width) => `${url(width)} ${width}w`).join(", "),
+      fullSrc: url(Math.max(...shipped.widths)),
     };
   }
 

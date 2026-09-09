@@ -2,31 +2,16 @@
 
 import { revalidatePath } from "next/cache";
 import { rejectInProduction } from "@/lib/dev-only";
-import {
-  newContentId,
-  updateChapter,
-  updateOverview,
-  updatePlanning,
-  withTrip,
-} from "@/lib/trip-repository";
+import { newContentId, updatePlanning, withTrip } from "@/lib/trip-repository";
 import type { PlanningPrinciple, Tradeoff } from "@/content/types";
 
 export type StoryActionState = { error?: string; success?: string } | undefined;
-
-const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
 function text(formData: FormData, key: string): string {
   const value = formData.get(key);
   return typeof value === "string" ? value.trim() : "";
 }
 
-/** A textarea of prose becomes one paragraph per blank line. */
-function paragraphs(formData: FormData, key: string): string[] {
-  return text(formData, key)
-    .split(/\n\s*\n/)
-    .map((paragraph) => paragraph.replace(/\s+/g, " ").trim())
-    .filter(Boolean);
-}
 
 function revalidateStory() {
   revalidatePath("/admin/story");
@@ -34,46 +19,7 @@ function revalidateStory() {
   revalidatePath("/");
 }
 
-export async function updateTripMeta(
-  _prevState: StoryActionState,
-  formData: FormData,
-): Promise<StoryActionState> {
-  const guard = rejectInProduction();
-  if (guard) return guard;
 
-  const title = text(formData, "title");
-  if (!title) return { error: "The trip needs a title — it's used as the site name." };
-
-  await withTrip((trip) => ({
-    ...trip,
-    title,
-    headline: text(formData, "headline"),
-    subtitle: text(formData, "subtitle"),
-    place: text(formData, "place"),
-  }));
-
-  revalidateStory();
-  return { success: "Saved." };
-}
-
-export async function updateOverviewCopy(
-  _prevState: StoryActionState,
-  formData: FormData,
-): Promise<StoryActionState> {
-  const guard = rejectInProduction();
-  if (guard) return guard;
-
-  await withTrip((trip) =>
-    updateOverview(trip, {
-      lede: text(formData, "lede"),
-      body: paragraphs(formData, "body"),
-      mapCaption: text(formData, "mapCaption"),
-    }),
-  );
-
-  revalidateStory();
-  return { success: "Saved." };
-}
 
 export async function updatePlanningCopy(
   _prevState: StoryActionState,
@@ -95,39 +41,6 @@ export async function updatePlanningCopy(
   return { success: "Saved." };
 }
 
-/**
- * A chapter's copy and date range. Chapters are not created or deleted here —
- * each carries map geometry (a viewBox crop and named stops) that needs
- * coordinates, so that part is still edited in trip-data.json directly.
- */
-export async function saveChapter(
-  _prevState: StoryActionState,
-  formData: FormData,
-): Promise<StoryActionState> {
-  const guard = rejectInProduction();
-  if (guard) return guard;
-
-  const chapterId = text(formData, "chapterId");
-  const title = text(formData, "title");
-  const chip = text(formData, "chip");
-  const start = text(formData, "start");
-  const end = text(formData, "end");
-
-  if (!chapterId) return { error: "Missing chapter id" };
-  if (!title) return { error: "Give the chapter a title." };
-  if (!chip) return { error: "Give the chapter a short label for the chapter bar." };
-  if (!ISO_DATE.test(start) || !ISO_DATE.test(end)) {
-    return { error: "Dates must be YYYY-MM-DD." };
-  }
-  if (start > end) return { error: "The chapter can't end before it starts." };
-
-  await withTrip((trip) =>
-    updateChapter(trip, chapterId, { title, chip, note: text(formData, "note"), start, end }),
-  );
-
-  revalidateStory();
-  return { success: "Saved." };
-}
 
 export async function savePrinciple(
   _prevState: StoryActionState,

@@ -1,139 +1,110 @@
-import { getChaptersWithDays } from "@/content/chapters";
-import type { Activity, Day } from "@/content/types";
-import {
-  getAllAssignmentOptions,
-  getAssignmentsBySourcePath,
-  readTrip,
-} from "@/lib/trip-repository";
-import { Timeline } from "@/components/timeline";
-import { TripOpening } from "@/components/trip-opening";
-import { ActivityEditor } from "@/components/admin/activity-editor";
-import { AddActivityButton } from "@/components/admin/add-activity-button";
-import { AssignmentsProvider } from "@/components/admin/assignments-context";
-import { DayDetailsEditor } from "@/components/admin/day-details-editor";
-import { EditGroup, EditPanel, EditToggle } from "@/components/admin/edit-group";
-import { MediaDragProvider } from "@/components/admin/media-drag-context";
-import { ChapterEditor, OverviewForm, TripMetaForm } from "@/components/admin/story-editors";
-import { SyncDaysButton } from "@/components/admin/sync-days-button";
+import Link from "next/link";
+import { getChapters, getFrontispiece, type ResolvedChapter } from "@/content/chapters";
+import type { MediaRef } from "@/content/types";
+import { getChapterMedia } from "@/lib/content";
+import { formatShortDate } from "@/lib/format";
+import { readTrip } from "@/lib/trip-repository";
+import { rawMediaUrl } from "@/components/admin/raw-media-url";
 
 /**
- * The itinerary editor IS the trip page. It renders the same components the
- * reader sees — TripOpening, ChapterOpener, DaySpread — from the live
- * trip-data.json, with one difference: each unit carries an Edit button, and
- * clicking it opens that unit's form directly beneath its rendering. The
- * rendering stays on screen while you edit, so after a save you see exactly
- * how the new copy sits — where it runs long, where it needs more.
- *
- * One drag context spans the page, so a photograph can be dragged between two
- * activities being edited, across days.
+ * The itinerary editor's front door: the opening, then the chapters, each a
+ * card. Open one and the whole chapter is in edit mode, laid out exactly as
+ * the reader sees it, and saves as you type.
  */
 
-const isEmptyActivity = (activity: Activity) =>
-  !activity.title && !activity.description && activity.media.length === 0;
+function Thumb({ media, alt }: { media?: MediaRef; alt: string }) {
+  return (
+    <div className="aspect-[3/2] w-full overflow-hidden rounded-md bg-secondary/40">
+      {media?.sourcePath ? (
+        // eslint-disable-next-line @next/next/no-img-element -- local dev-only file stream
+        <img
+          src={rawMediaUrl(media.sourcePath, undefined, 640)}
+          alt={alt}
+          className="grade h-full w-full object-cover"
+        />
+      ) : (
+        <div className="flex h-full items-center justify-center text-xs text-muted-foreground">
+          No photograph yet
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ChapterCard({ chapter }: { chapter: ResolvedChapter }) {
+  const media = getChapterMedia(chapter);
+  const photos = media.length;
+  const missingAlt = media.filter((m) => !m.alt.trim()).length;
+  const activities = chapter.activities.length;
+
+  return (
+    <Link
+      href={`/admin/itinerary/${chapter.id}`}
+      className="group flex flex-col gap-3 rounded-md border border-border p-4 no-underline transition-colors hover:border-primary"
+    >
+      <Thumb media={chapter.cover} alt="" />
+      <div>
+        <p className="font-mono text-xs uppercase tracking-widest text-primary">{chapter.ordinal}</p>
+        <h2 className="mt-1 font-display text-xl italic text-foreground">
+          {chapter.title || "Untitled chapter"}
+        </h2>
+        <p className="mt-1 text-xs text-muted-foreground">
+          {chapter.start && chapter.end ? (
+            <>
+              {formatShortDate(chapter.start)} &ndash; {formatShortDate(chapter.end)} ·{" "}
+            </>
+          ) : (
+            <>No dates yet · </>
+          )}
+          {activities} activit{activities === 1 ? "y" : "ies"} · {photos} photo
+          {photos === 1 ? "" : "s"}
+        </p>
+        {missingAlt > 0 && (
+          <p className="mt-1 text-xs text-destructive">
+            {missingAlt} photo{missingAlt === 1 ? "" : "s"} need alt text
+          </p>
+        )}
+      </div>
+    </Link>
+  );
+}
 
 export default async function AdminItineraryPage() {
   const trip = await readTrip();
-  const chapters = getChaptersWithDays(trip);
-
-  const assignments = getAssignmentsBySourcePath(trip.days);
-  const targetLabels = Object.fromEntries(
-    getAllAssignmentOptions(trip).map((option) => [
-      option.value,
-      option.groupLabel ? `${option.groupLabel} · ${option.label}` : option.label,
-    ]),
-  );
-  const dayDates = Object.fromEntries(trip.days.map((day) => [day.id, day.date]));
-
-  // A just-added activity has nothing to display, so it opens for editing.
-  const emptyActivityIds = trip.days.flatMap((day) =>
-    day.activities.filter(isEmptyActivity).map((activity) => activity.id),
-  );
-
-  const unfiled = trip.days.filter(
-    (day) => !trip.chapters.some((c) => day.date >= c.start && day.date <= c.end),
-  );
-
-  const dayEditor = (day: Day) => (
-    <>
-      <EditPanel id={day.id} label={`day ${day.title ? `— ${day.title}` : ""}`.trim()}>
-        <DayDetailsEditor day={day} />
-      </EditPanel>
-      {day.activities.map((activity) => (
-        <EditPanel
-          key={activity.id}
-          id={activity.id}
-          label={`activity ${activity.title ? `— ${activity.title}` : ""}`.trim()}
-        >
-          <ActivityEditor dayId={day.id} activity={activity} />
-        </EditPanel>
-      ))}
-      <div className="mb-8 font-body">
-        <AddActivityButton dayId={day.id} />
-      </div>
-    </>
-  );
+  const chapters = getChapters(trip);
+  const frontispiece = getFrontispiece(trip, chapters);
 
   return (
-    <AssignmentsProvider value={{ assignments, targetLabels, dayDates }}>
-      <MediaDragProvider>
-        <EditGroup defaultOpen={emptyActivityIds}>
-          <div className="mx-auto max-w-6xl pb-24">
-            <div className="flex flex-wrap items-end justify-between gap-4 border-b border-border pb-6">
-              <div>
-                <h1 className="font-display text-3xl italic text-foreground">Itinerary editor</h1>
-                <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-                  This is the trip page exactly as the reader sees it. Click Edit on the
-                  overview, a chapter, a day, or an activity to open its form beneath it;
-                  the page updates as you save. Days are generated from the dates your
-                  photos were taken and filed into chapters by date.
-                </p>
-                {unfiled.length > 0 && (
-                  <p className="mt-2 text-xs text-destructive">
-                    {unfiled.length} day{unfiled.length === 1 ? "" : "s"} fall outside every
-                    chapter&apos;s dates and are shown under the last chapter. Widen a
-                    chapter&apos;s range to file them.
-                  </p>
-                )}
-              </div>
-              <SyncDaysButton />
-            </div>
+    <div className="mx-auto max-w-6xl pb-24">
+      <div>
+        <h1 className="font-display text-3xl italic text-foreground">Itinerary editor</h1>
+        <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
+          The trip page, part by part. Open the opening or a chapter to edit everything in
+          it, laid out exactly as the reader sees it. Changes save as you type.
+        </p>
+      </div>
 
-            {trip.days.length === 0 && (
-              <p className="mt-8 text-sm text-muted-foreground">
-                No days yet — sync from the photo library to get started.
-              </p>
-            )}
-
-            <TripOpening
-              trip={trip}
-              chapters={chapters}
-              action={<EditToggle id="overview" label="overview" />}
-            />
-            <EditPanel id="overview" label="overview">
-              <div className="flex flex-col gap-4">
-                <TripMetaForm trip={trip} />
-                <OverviewForm overview={trip.overview} />
-              </div>
-            </EditPanel>
-
-            <Timeline
-              source={trip}
-              chapterAction={(chapter) => <EditToggle id={chapter.id} label="chapter" />}
-              afterChapterOpener={(chapter) => (
-                <EditPanel id={chapter.id} label={`chapter — ${chapter.title}`}>
-                  <ChapterEditor
-                    chapter={chapter}
-                    position={chapters.findIndex((c) => c.id === chapter.id) + 1}
-                  />
-                </EditPanel>
-              )}
-              dayAction={(day) => <EditToggle id={day.id} label="day" />}
-              activityAction={(activity) => <EditToggle id={activity.id} label="activity" />}
-              afterDay={dayEditor}
-            />
+      <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <Link
+          href="/admin/itinerary/overview"
+          className="flex flex-col gap-3 rounded-md border border-border p-4 no-underline transition-colors hover:border-primary"
+        >
+          <Thumb media={frontispiece} alt="" />
+          <div>
+            <p className="font-mono text-xs uppercase tracking-widest text-primary">Opening</p>
+            <h2 className="mt-1 font-display text-xl italic text-foreground">
+              {trip.headline || trip.title}
+            </h2>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Headline, subtitle, frontispiece, map copy, and the overview.
+            </p>
           </div>
-        </EditGroup>
-      </MediaDragProvider>
-    </AssignmentsProvider>
+        </Link>
+
+        {chapters.map((chapter) => (
+          <ChapterCard key={chapter.id} chapter={chapter} />
+        ))}
+      </div>
+    </div>
   );
 }

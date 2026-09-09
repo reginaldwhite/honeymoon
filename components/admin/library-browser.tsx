@@ -104,7 +104,7 @@ export function LibraryBrowser({
         return {
           mode: "select",
           options,
-          currentValue: assignment ? `${assignment.dayId}::${assignment.target}` : null,
+          currentValue: assignment ? `${assignment.ownerId}::${assignment.target}` : null,
           currentMediaId: assignment?.mediaId ?? null,
         };
       },

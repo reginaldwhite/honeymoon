@@ -9,6 +9,13 @@ function utcDate(isoDate: string): Date {
   return new Date(`${isoDate}T00:00:00Z`);
 }
 
+const weekdayFormatter = new Intl.DateTimeFormat("en-US", {
+  weekday: "short",
+  month: "short",
+  day: "numeric",
+  timeZone: "UTC",
+});
+
 const shortDayFormatter = new Intl.DateTimeFormat("en-US", {
   month: "short",
   day: "numeric",
@@ -21,6 +28,11 @@ const monthDayYearFormatter = new Intl.DateTimeFormat("en-US", {
   year: "numeric",
   timeZone: "UTC",
 });
+
+/** "Wed, May 27" */
+export function formatWeekdayDate(isoDate: string): string {
+  return weekdayFormatter.format(utcDate(isoDate));
+}
 
 /** "May 27" */
 export function formatShortDate(isoDate: string): string {
@@ -54,4 +66,11 @@ export function formatHours(hours: number): string {
   if (hours <= 0) return "0h";
   if (hours < 1) return `${Math.round(hours * 60)}m`;
   return `${Number(hours.toFixed(1))}h`;
+}
+
+/** "12 hr", "90 min" — an activity's length; "" when none is recorded. */
+export function formatDurationLabel(minutes: number): string {
+  if (!Number.isFinite(minutes) || minutes <= 0) return "";
+  if (minutes < 60) return `${Math.round(minutes)} min`;
+  return `${Number((minutes / 60).toFixed(1))} hr`;
 }

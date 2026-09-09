@@ -2,7 +2,7 @@ import "server-only";
 import { readdir, stat } from "node:fs/promises";
 import { extname, join, relative } from "node:path";
 import { mediaKindForExtension } from "@/lib/media-source";
-import { captureDateKey, isUncertainDate } from "@/lib/photo-dates";
+import { captureDateKey, isUncertainDate, uncertainOrder } from "@/lib/photo-dates";
 import { resolveSafePath } from "@/lib/safe-path";
 
 const MAX_RESULTS = 20000;
@@ -149,8 +149,30 @@ export async function getLibraryEntriesForDate(date: string): Promise<LibraryEnt
   return entries.filter((entry) => captureDateKey(entry.takenAt) === date);
 }
 
-/** Files with a known-bad timestamp that could belong to any day of the trip. */
-export async function getUncertainLibraryEntries(): Promise<LibraryEntry[]> {
+/** One capture date's files, for the full picker. */
+export interface LibraryDateGroup {
+  date: string;
+  /** The timestamp can't be trusted: shown as a pool after every real date. */
+  uncertain: boolean;
+  entries: LibraryEntry[];
+}
+
+/**
+ * The whole library grouped by capture date: real dates first in order, then
+ * the unknown-date pools, with the reset-clock (1/1) files last of all.
+ */
+export async function getLibraryGroupedEntries(): Promise<LibraryDateGroup[]> {
   const entries = await getLibraryEntries();
-  return entries.filter((entry) => isUncertainDate(captureDateKey(entry.takenAt)));
+  const byDate = new Map<string, LibraryEntry[]>();
+  for (const entry of entries) {
+    const date = captureDateKey(entry.takenAt);
+    byDate.set(date, [...(byDate.get(date) ?? []), entry]);
+  }
+  return [...byDate.entries()]
+    .map(([date, group]) => ({ date, uncertain: isUncertainDate(date), entries: group }))
+    .sort((a, b) => {
+      if (a.uncertain !== b.uncertain) return a.uncertain ? 1 : -1;
+      if (a.uncertain) return uncertainOrder(a.date) - uncertainOrder(b.date) || a.date.localeCompare(b.date);
+      return a.date.localeCompare(b.date);
+    });
 }

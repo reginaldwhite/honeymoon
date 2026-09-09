@@ -45,7 +45,7 @@ export function Modal({
     >
       {open && (
         <div className="flex h-full w-full items-center justify-center p-4 sm:p-8">
-          <div className="flex max-h-full w-full max-w-7xl flex-col overflow-hidden rounded-lg border border-border bg-card text-card-foreground shadow-2xl">
+          <div className="flex max-h-full w-full max-w-7xl flex-col overflow-hidden rounded-lg border border-border bg-surface text-foreground shadow-2xl">
             <div className="flex items-start gap-4 border-b border-border px-5 py-4">
               <div className="min-w-0 flex-1">
                 <h2 className="font-display text-lg italic text-foreground">{title}</h2>

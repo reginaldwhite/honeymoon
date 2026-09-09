@@ -18,8 +18,8 @@ const adminNav = [
  * and server action asserts it independently as well).
  *
  * The header is sticky at `--header-h`, the same height as the public site's,
- * so the itinerary editor can reuse the public ChapterNav and its
- * `scroll-mt-(--sticky-stack)` offsets unchanged.
+ * so the itinerary editor's `scroll-mt-(--sticky-stack)` anchors land the
+ * same way they do on the public page.
  */
 export default function AdminLayout({ children }: { children: ReactNode }) {
   if (isProductionRuntime()) {

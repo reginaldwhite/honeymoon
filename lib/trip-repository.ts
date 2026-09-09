@@ -3,7 +3,7 @@ import { readFile, rename, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { randomUUID } from "node:crypto";
 import { sortActivities } from "@/lib/activity-order";
-import type { Activity, ChapterContent, Day, MediaRef, Trip } from "@/content/types";
+import type { Activity, ChapterContent, MediaRef, Trip } from "@/content/types";
 
 const TRIP_DATA_PATH = path.join(process.cwd(), "content", "trip-data.json");
 
@@ -31,10 +31,19 @@ function normalizeTrip(trip: Trip): Trip {
       lede: trip.overview?.lede ?? "",
       body: trip.overview?.body ?? [],
       mapCaption: trip.overview?.mapCaption ?? "",
+      mapAlt: trip.overview?.mapAlt ?? "",
+      frontispiece: trip.overview?.frontispiece,
       mapStops: trip.overview?.mapStops ?? [],
     },
-    chapters: trip.chapters ?? [],
-    days: (trip.days ?? []).map((day) => ({ ...day, night: day.night ?? "none" })),
+    chapters: (trip.chapters ?? []).map((chapter) => ({
+      ...chapter,
+      mapAlt: chapter.mapAlt ?? "",
+      nights: { tent: chapter.nights?.tent ?? 0, bed: chapter.nights?.bed ?? 0 },
+      activities: (chapter.activities ?? []).map((activity) => ({
+        ...activity,
+        date: activity.date ?? "",
+      })),
+    })),
     planning: {
       headline: trip.planning?.headline ?? "",
       intro: trip.planning?.intro ?? "",
@@ -49,9 +58,10 @@ function normalizeTrip(trip: Trip): Trip {
 function sortTrip(trip: Trip): Trip {
   return {
     ...trip,
-    days: [...trip.days]
-      .sort((a, b) => a.date.localeCompare(b.date))
-      .map((day) => ({ ...day, activities: sortActivities(day.activities) })),
+    chapters: trip.chapters.map((chapter) => ({
+      ...chapter,
+      activities: sortActivities(chapter.activities),
+    })),
   };
 }
 
@@ -88,86 +98,100 @@ export async function withTrip<T>(
   return run;
 }
 
-/** `day-YYYY-MM-DD` — stable as days are added, unlike a sequential number. */
-function dayIdForDate(date: string): string {
-  return `day-${date}`;
+export interface ActivityLocation {
+  chapter: ChapterContent;
+  activity: Activity;
 }
 
-/** Adds a blank Day for every distinct date not already present. */
-export function addMissingDays(trip: Trip, dates: string[]): Trip {
-  const existingDates = new Set(trip.days.map((d) => d.date));
-  const newDays: Day[] = [];
-
-  for (const date of [...new Set(dates)].sort()) {
-    if (existingDates.has(date)) continue;
-    newDays.push({
-      id: dayIdForDate(date),
-      date,
-      title: "",
-      location: "",
-      summary: "",
-      planningNotes: { rationale: "", bufferHours: 0 },
-      activities: [],
-      // Unknown until authored; "none" keeps the derived night counts honest.
-      night: "none",
-    });
+/** Finds an activity anywhere in the trip; ids are unique across chapters. */
+export function findActivity(trip: Trip, activityId: string): ActivityLocation | undefined {
+  for (const chapter of trip.chapters) {
+    const activity = chapter.activities.find((a) => a.id === activityId);
+    if (activity) return { chapter, activity };
   }
-
-  return { ...trip, days: [...trip.days, ...newDays] };
+  return undefined;
 }
 
-export function findDay(trip: Trip, dayId: string): Day | undefined {
-  return trip.days.find((d) => d.id === dayId);
-}
+/**
+ * Adds a blank activity to a chapter, at the end or at the front.
+ *
+ * Activities are ordered by date and time, so the new one takes its
+ * neighbour's date to land where it was asked for: at the end, the last
+ * activity's date (the usual case is "another thing that day") or, in an empty
+ * chapter, the day after the previous chapter ends; at the front, the first
+ * activity's date and time, and it goes before it in author order, which is
+ * what breaks the tie.
+ */
+export function addActivity(trip: Trip, chapterId: string, position: "start" | "end" = "end"): Trip {
+  const index = trip.chapters.findIndex((c) => c.id === chapterId);
+  if (index === -1) return trip;
+  const chapter = trip.chapters[index];
+  const sorted = sortActivities(chapter.activities);
+  const first = sorted[0];
+  const lastDate = sorted.map((a) => a.date).filter(Boolean).pop();
+  const previousEnd = trip.chapters
+    .slice(0, index)
+    .flatMap((c) => c.activities.map((a) => a.date))
+    .filter(Boolean)
+    .sort()
+    .pop();
+  const fallbackDate = lastDate ?? (previousEnd ? nextDate(previousEnd) : "");
+  const atStart = position === "start" && first !== undefined;
 
-export function updateDay(trip: Trip, dayId: string, patch: Partial<Day>): Trip {
-  return {
-    ...trip,
-    days: trip.days.map((d) => (d.id === dayId ? { ...d, ...patch } : d)),
-  };
-}
-
-export function addActivity(trip: Trip, dayId: string): Trip {
-  const day = findDay(trip, dayId);
-  if (!day) return trip;
   const newActivity: Activity = {
-    id: `${dayId}-activity-${randomUUID().slice(0, 8)}`,
-    time: "",
+    id: `activity-${randomUUID().slice(0, 8)}`,
+    date: atStart ? first.date : fallbackDate,
+    time: atStart ? first.time : "",
     title: "",
     description: "",
     interestTags: [],
     durationMinutes: 60,
     media: [],
   };
-  return updateDay(trip, dayId, { activities: [...day.activities, newActivity] });
-}
-
-export function updateActivity(
-  trip: Trip,
-  dayId: string,
-  activityId: string,
-  patch: Partial<Activity>,
-): Trip {
-  const day = findDay(trip, dayId);
-  if (!day) return trip;
-  return updateDay(trip, dayId, {
-    activities: day.activities.map((a) => (a.id === activityId ? { ...a, ...patch } : a)),
+  return updateChapter(trip, chapterId, {
+    activities: atStart ? [newActivity, ...sorted] : [...chapter.activities, newActivity],
   });
 }
 
-export function removeActivity(trip: Trip, dayId: string, activityId: string): Trip {
-  const day = findDay(trip, dayId);
-  if (!day) return trip;
-  return updateDay(trip, dayId, {
-    activities: day.activities.filter((a) => a.id !== activityId),
-  });
+function nextDate(isoDate: string): string {
+  const date = new Date(`${isoDate}T00:00:00Z`);
+  date.setUTCDate(date.getUTCDate() + 1);
+  return date.toISOString().slice(0, 10);
+}
+
+export function updateActivity(trip: Trip, activityId: string, patch: Partial<Activity>): Trip {
+  return {
+    ...trip,
+    chapters: trip.chapters.map((chapter) => ({
+      ...chapter,
+      activities: chapter.activities.map((a) => (a.id === activityId ? { ...a, ...patch } : a)),
+    })),
+  };
+}
+
+export function removeActivity(trip: Trip, activityId: string): Trip {
+  return {
+    ...trip,
+    chapters: trip.chapters.map((chapter) => ({
+      ...chapter,
+      activities: chapter.activities.filter((a) => a.id !== activityId),
+    })),
+  };
+}
+
+export function findChapter(trip: Trip, chapterId: string): ChapterContent | undefined {
+  return trip.chapters.find((c) => c.id === chapterId);
 }
 
 /** Finds a MediaRef anywhere in the trip by its id. */
 export function findMedia(trip: Trip, mediaId: string): MediaRef | undefined {
-  for (const day of trip.days) {
-    if (day.coverMedia?.id === mediaId) return day.coverMedia;
-    for (const activity of day.activities) {
+  if (trip.overview.frontispiece?.id === mediaId) return trip.overview.frontispiece;
+  for (const chapter of trip.chapters) {
+    if (chapter.heroMedia?.id === mediaId) return chapter.heroMedia;
+  }
+  for (const chapter of trip.chapters) {
+    for (const activity of chapter.activities) {
+      if (activity.coverMedia?.id === mediaId) return activity.coverMedia;
       const match = activity.media.find((m) => m.id === mediaId);
       if (match) return match;
     }
@@ -182,10 +206,18 @@ export function updateMedia(trip: Trip, mediaId: string, patch: Partial<MediaRef
 
   return {
     ...trip,
-    days: trip.days.map((day) => ({
-      ...day,
-      coverMedia: day.coverMedia ? apply(day.coverMedia) : undefined,
-      activities: day.activities.map((a) => ({ ...a, media: a.media.map(apply) })),
+    overview: {
+      ...trip.overview,
+      frontispiece: trip.overview.frontispiece ? apply(trip.overview.frontispiece) : undefined,
+    },
+    chapters: trip.chapters.map((chapter) => ({
+      ...chapter,
+      heroMedia: chapter.heroMedia ? apply(chapter.heroMedia) : undefined,
+      activities: chapter.activities.map((a) => ({
+        ...a,
+        coverMedia: a.coverMedia ? apply(a.coverMedia) : undefined,
+        media: a.media.map(apply),
+      })),
     })),
   };
 }
@@ -193,11 +225,17 @@ export function updateMedia(trip: Trip, mediaId: string, patch: Partial<MediaRef
 function clearMediaEverywhere(trip: Trip, mediaId: string): Trip {
   return {
     ...trip,
-    days: trip.days.map((day) => ({
-      ...day,
-      coverMedia: day.coverMedia?.id === mediaId ? undefined : day.coverMedia,
-      activities: day.activities.map((a) => ({
+    overview: {
+      ...trip.overview,
+      frontispiece:
+        trip.overview.frontispiece?.id === mediaId ? undefined : trip.overview.frontispiece,
+    },
+    chapters: trip.chapters.map((chapter) => ({
+      ...chapter,
+      heroMedia: chapter.heroMedia?.id === mediaId ? undefined : chapter.heroMedia,
+      activities: chapter.activities.map((a) => ({
         ...a,
+        coverMedia: a.coverMedia?.id === mediaId ? undefined : a.coverMedia,
         media: a.media.filter((m) => m.id !== mediaId),
       })),
     })),
@@ -205,81 +243,101 @@ function clearMediaEverywhere(trip: Trip, mediaId: string): Trip {
 }
 
 /**
- * Assigns a MediaRef to a day's cover or one of its activities, removing it
- * from wherever else it currently lives across the WHOLE trip first (a photo
- * only lives in one place at a time, and reassigning can move it between days).
+ * Slots are addressed as `${ownerId}::${target}`. The owner is "overview" for
+ * the frontispiece and otherwise a chapter id; the target is "frontispiece",
+ * "hero", `cover:${activityId}` for an activity's cover, or an activity id
+ * for its rows.
+ */
+export const COVER_TARGET_PREFIX = "cover:";
+
+export function coverTarget(activityId: string): string {
+  return `${COVER_TARGET_PREFIX}${activityId}`;
+}
+
+/** The activity id a cover target names, or undefined for any other target. */
+export function coverTargetActivityId(target: string): string | undefined {
+  return target.startsWith(COVER_TARGET_PREFIX)
+    ? target.slice(COVER_TARGET_PREFIX.length)
+    : undefined;
+}
+
+/** Whether a target names a single-photograph slot, which a new photo displaces from. */
+export function isSingleSlot(target: string): boolean {
+  return target === "frontispiece" || target === "hero" || target.startsWith(COVER_TARGET_PREFIX);
+}
+
+/** The photograph currently in a single-photograph slot, if any. */
+export function mediaInSlot(trip: Trip, ownerId: string, target: string): MediaRef | undefined {
+  if (target === "frontispiece") return trip.overview.frontispiece;
+  if (target === "hero") return findChapter(trip, ownerId)?.heroMedia;
+  const activityId = coverTargetActivityId(target);
+  return activityId ? findActivity(trip, activityId)?.activity.coverMedia : undefined;
+}
+
+/**
+ * Assigns a MediaRef to a slot — the overview's frontispiece, a chapter's
+ * hero, an activity's cover, or an activity's rows — removing it from
+ * wherever else it currently lives across the WHOLE trip first. A photo only
+ * lives in one place at a time, and reassigning can move it anywhere.
  *
  * Any alt text or caption already authored for this photo is carried over —
- * moving a photo to a different activity must not silently discard its copy.
+ * moving a photo must not silently discard its copy.
  */
-export function assignMedia(
-  trip: Trip,
-  dayId: string,
-  target: "cover" | string,
-  media: MediaRef,
-): Trip {
+export function assignMedia(trip: Trip, ownerId: string, target: string, media: MediaRef): Trip {
   const existing = findMedia(trip, media.id);
   const merged: MediaRef = existing
     ? { ...media, alt: existing.alt || media.alt, caption: existing.caption }
     : media;
 
   const cleared = clearMediaEverywhere(trip, media.id);
-  const day = findDay(cleared, dayId);
-  if (!day) return trip;
 
-  const updated: Day =
-    target === "cover"
-      ? { ...day, coverMedia: merged }
-      : {
-          ...day,
-          activities: day.activities.map((a) =>
-            a.id === target ? { ...a, media: [...a.media, merged] } : a,
-          ),
-        };
+  if (target === "frontispiece") {
+    if (ownerId !== OVERVIEW_OWNER_ID) return trip;
+    return { ...cleared, overview: { ...cleared.overview, frontispiece: merged } };
+  }
 
-  return updateDay(cleared, dayId, updated);
+  if (target === "hero") {
+    if (!findChapter(cleared, ownerId)) return trip;
+    return updateChapter(cleared, ownerId, { heroMedia: merged });
+  }
+
+  const coverOf = coverTargetActivityId(target);
+  const activityId = coverOf ?? target;
+  const found = findActivity(cleared, activityId);
+  if (!found || found.chapter.id !== ownerId) return trip;
+
+  return updateActivity(
+    cleared,
+    activityId,
+    coverOf ? { coverMedia: merged } : { media: [...found.activity.media, merged] },
+  );
 }
 
 /**
- * Moves a photo to a position within an activity, from anywhere else in the
- * trip. Reordering inside one activity and dragging between two activities are
+ * Moves a photo to a position within an activity's rows, from anywhere else
+ * in the trip. Reordering inside one activity and dragging between two are
  * the same operation: pull the media out, then splice it back in at `index`.
  *
  * Alt text and caption ride along, because they describe the photo rather than
  * the slot it sits in.
  */
-export function moveMedia(
-  trip: Trip,
-  mediaId: string,
-  dayId: string,
-  target: "cover" | string,
-  index: number,
-): Trip {
+export function moveMedia(trip: Trip, mediaId: string, activityId: string, index: number): Trip {
   const media = findMedia(trip, mediaId);
   if (!media) return trip;
 
   // When a photo moves later within its own activity, every position after it
   // shifts back by one once it is removed.
-  const targetActivity = findDay(trip, dayId)?.activities.find((a) => a.id === target);
-  const currentIndex = targetActivity?.media.findIndex((m) => m.id === mediaId) ?? -1;
+  const currentIndex =
+    findActivity(trip, activityId)?.activity.media.findIndex((m) => m.id === mediaId) ?? -1;
   const insertAt = currentIndex !== -1 && currentIndex < index ? index - 1 : index;
 
   const cleared = clearMediaEverywhere(trip, mediaId);
-  const day = findDay(cleared, dayId);
-  if (!day) return trip;
+  const found = findActivity(cleared, activityId);
+  if (!found) return trip;
 
-  if (target === "cover") {
-    return updateDay(cleared, dayId, { coverMedia: media });
-  }
-
-  return updateDay(cleared, dayId, {
-    activities: day.activities.map((activity) => {
-      if (activity.id !== target) return activity;
-      const next = [...activity.media];
-      next.splice(Math.max(0, Math.min(insertAt, next.length)), 0, media);
-      return { ...activity, media: next };
-    }),
-  });
+  const next = [...found.activity.media];
+  next.splice(Math.max(0, Math.min(insertAt, next.length)), 0, media);
+  return updateActivity(cleared, activityId, { media: next });
 }
 
 /** Removes a MediaRef from wherever it currently lives (mediaId is globally unique). */
@@ -287,77 +345,66 @@ export function unassignMedia(trip: Trip, mediaId: string): Trip {
   return clearMediaEverywhere(trip, mediaId);
 }
 
+/** The owner id the frontispiece slot is keyed under; there is only one overview. */
+export const OVERVIEW_OWNER_ID = "overview";
+
 export interface AssignmentOption {
-  /** `${dayId}::cover` or `${dayId}::${activityId}` — unambiguous across the whole trip. */
+  /** `${ownerId}::${target}` — unambiguous across the trip. */
   value: string;
   label: string;
-  /** Day heading this option belongs to; used to build <optgroup>s. */
+  /** Chapter heading this option belongs to; used to build <optgroup>s. */
   groupLabel?: string;
 }
 
-/**
- * The cover + activity slots for a single day. `withGroupLabel` is set on the
- * library page (where every day's slots are offered at once and need an
- * <optgroup> heading) and omitted in the itinerary editor, where the day is
- * already fixed by context.
- */
-function getDayAssignmentOptions(
-  day: Day,
-  index: number,
-  withGroupLabel: boolean,
-): AssignmentOption[] {
-  const groupLabel = withGroupLabel ? formatDayOptionLabel(day, index) : undefined;
+function chapterGroupLabel(chapter: ChapterContent, index: number): string {
+  return `Chapter ${index + 1} · ${chapter.title || "Untitled chapter"}`;
+}
+
+/** Every frontispiece, hero, cover and activity slot as one flat, grouped option list. */
+export function getAllAssignmentOptions(trip: Trip): AssignmentOption[] {
+  const frontispiece = {
+    value: `${OVERVIEW_OWNER_ID}::frontispiece`,
+    label: "Frontispiece",
+    groupLabel: "Overview",
+  };
   return [
-    { value: `${day.id}::cover`, label: "Cover photo", groupLabel },
-    ...sortActivities(day.activities).map((a) => ({
-      value: `${day.id}::${a.id}`,
-      label: a.title || "Untitled activity",
-      groupLabel,
-    })),
+    frontispiece,
+    ...trip.chapters.flatMap((chapter, index) => {
+      const groupLabel = chapterGroupLabel(chapter, index);
+      return [
+        { value: `${chapter.id}::hero`, label: "Hero photograph", groupLabel },
+        ...sortActivities(chapter.activities).flatMap((activity) => {
+          const name = activity.title || "Untitled activity";
+          return [
+            { value: `${chapter.id}::${coverTarget(activity.id)}`, label: `${name} — cover`, groupLabel },
+            { value: `${chapter.id}::${activity.id}`, label: name, groupLabel },
+          ];
+        }),
+      ];
+    }),
   ];
 }
 
-function formatDayOptionLabel(day: Day, index: number): string {
-  return `Day ${index + 1} · ${day.title || "Untitled day"}`;
-}
-
-/** Every day's cover + activity slots as one flat, grouped option list. */
-export function getAllAssignmentOptions(trip: Trip): AssignmentOption[] {
-  return trip.days.flatMap((day, index) => getDayAssignmentOptions(day, index, true));
-}
-
 export interface Assignment {
-  dayId: string;
-  /** "cover" or an activity id. */
+  /** "overview" for the frontispiece, otherwise a chapter id. */
+  ownerId: string;
+  /** "frontispiece", "hero", `cover:${activityId}` or an activity id. */
   target: string;
   mediaId: string;
 }
 
-/**
- * Maps each staged photo's sourcePath to wherever it's currently assigned.
- * Pass a single day to scope it to that day's editor, or the whole trip for
- * the cross-day library browser.
- */
-export function getAssignmentsBySourcePath(days: Day[]): Record<string, Assignment> {
+/** Maps each staged photo's sourcePath to wherever it's currently assigned, across the whole trip. */
+export function getAssignmentsBySourcePath(trip: Trip): Record<string, Assignment> {
   const map: Record<string, Assignment> = {};
-  for (const day of days) {
-    if (day.coverMedia?.sourcePath) {
-      map[day.coverMedia.sourcePath] = {
-        dayId: day.id,
-        target: "cover",
-        mediaId: day.coverMedia.id,
-      };
-    }
-    for (const activity of day.activities) {
-      for (const media of activity.media) {
-        if (media.sourcePath) {
-          map[media.sourcePath] = {
-            dayId: day.id,
-            target: activity.id,
-            mediaId: media.id,
-          };
-        }
-      }
+  const put = (media: MediaRef | undefined, ownerId: string, target: string) => {
+    if (media?.sourcePath) map[media.sourcePath] = { ownerId, target, mediaId: media.id };
+  };
+  put(trip.overview.frontispiece, OVERVIEW_OWNER_ID, "frontispiece");
+  for (const chapter of trip.chapters) {
+    put(chapter.heroMedia, chapter.id, "hero");
+    for (const activity of chapter.activities) {
+      put(activity.coverMedia, chapter.id, coverTarget(activity.id));
+      for (const media of activity.media) put(media, chapter.id, activity.id);
     }
   }
   return map;
@@ -368,7 +415,7 @@ export function updateOverview(trip: Trip, patch: Partial<Trip["overview"]>): Tr
   return { ...trip, overview: { ...trip.overview, ...patch } };
 }
 
-/** Patches one chapter's authored copy and date range. Chapters are not added or removed here. */
+/** Patches one chapter. Chapters are not added or removed here. */
 export function updateChapter(trip: Trip, chapterId: string, patch: Partial<ChapterContent>): Trip {
   return {
     ...trip,

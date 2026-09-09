@@ -1,38 +1,40 @@
 import { trip } from "@/content/trip";
-import type { ChapterContent, Day, MediaRef, Trip } from "@/content/types";
-import { STOPS } from "./kauai-geometry";
+import type { Activity, ChapterContent, ChapterMapMark, MediaRef, Nights, Trip } from "@/content/types";
+import { sortActivities } from "@/lib/activity-order";
+import { STOPS, type MapMark } from "./kauai-geometry";
+import { WALKED_ROUTES, type WalkedRoute } from "./walked-routes";
 
 /**
- * The trip's chapters, resolved against its days.
+ * The trip's chapters, resolved for display.
  *
- * The chapters themselves are authored in trip-data.json (title, note, date
- * range, map stops); everything here is derived from that and the days —
- * which days a chapter owns, its lead photograph, its map marks, and how many
- * nights were spent in a tent versus a bed.
+ * The chapters and their activities are authored in trip-data.json; everything
+ * here is derived from that — the chapter's ordinal, its dates and day count
+ * (from its activities' dates), its lead photograph, and its map marks.
  */
 
-/** A place on the map, in KAUAI_VIEWBOX coordinates, with its mark radius. */
-export interface MapMark {
-  x: number;
-  y: number;
-  r: number;
-}
-
-export interface NightTotals {
-  tent: number;
-  bed: number;
+export interface NightTotals extends Nights {
   total: number;
 }
 
-export interface ChapterWithDays extends ChapterContent {
+export interface ResolvedChapter extends ChapterContent {
   /** "Chapter one" — derived from position, so reordering never needs re-authoring. */
   ordinal: string;
-  days: Day[];
-  /** The chapter's lead photograph: its first day's cover, else its first photo. */
+  /** The chapter's activities in the order they happened. */
+  activities: Activity[];
+  /** First and last activity dates; undefined until the chapter has a dated activity. */
+  start?: string;
+  end?: string;
+  /** Distinct dates the chapter's activities fall on. */
+  dayCount: number;
+  /**
+   * The chapter's hero: its own `heroMedia` if assigned, else the first
+   * activity cover in the chapter. Never a row photograph — a chapter with no
+   * chosen hero opens on paper rather than on whichever photo comes first.
+   */
   cover?: MediaRef;
   marks: MapMark[];
-  /** Summed from the chapter's days, so a deleted day is simply a night fewer. */
-  nights: NightTotals;
+  /** The routes named in `walks`, resolved to their geometry. */
+  routes: WalkedRoute[];
 }
 
 const ORDINAL_WORDS = [
@@ -44,82 +46,74 @@ function chapterOrdinal(position: number): string {
   return `Chapter ${ORDINAL_WORDS[position - 1] ?? position}`;
 }
 
-/** Nights across a set of days, by where each day ended. */
-function nightTotals(days: Day[]): NightTotals {
-  let tent = 0;
-  let bed = 0;
-  for (const day of days) {
-    if (day.night === "tent") tent += 1;
-    else if (day.night === "bed") bed += 1;
-  }
-  return { tent, bed, total: tent + bed };
+/** The distinct dates a set of activities falls on, in order. */
+export function distinctDates(activities: Activity[]): string[] {
+  return [...new Set(activities.map((activity) => activity.date).filter(Boolean))].sort();
 }
 
-/**
- * Chapters with their days attached. Any day whose date falls outside every
- * range is appended to the last chapter rather than dropped, so content can
- * never silently disappear from the site.
- */
-export function getChaptersWithDays(source: Trip = trip): ChapterWithDays[] {
-  const assigned = new Set<string>();
-
-  const built = source.chapters.map((chapter, index) => {
-    const days = source.days.filter((day) => {
-      const inRange = day.date >= chapter.start && day.date <= chapter.end;
-      if (inRange) assigned.add(day.id);
-      return inRange;
-    });
-
+export function getChapters(source: Trip = trip): ResolvedChapter[] {
+  return source.chapters.map((chapter, index) => {
+    const activities = sortActivities(chapter.activities);
+    const dates = distinctDates(activities);
     return {
       ...chapter,
       ordinal: chapterOrdinal(index + 1),
-      days,
-      cover: findCover(days),
-      marks: chapter.stops.map((stop) => ({ ...STOPS[stop.at], r: stop.slept ? 11 : 7 })),
-      nights: nightTotals(days),
+      activities,
+      start: dates[0],
+      end: dates[dates.length - 1],
+      dayCount: dates.length,
+      cover: chapter.heroMedia ?? firstActivityCover(activities),
+      marks: resolveMarks(chapter),
+      routes: (chapter.walks ?? []).flatMap((id) => WALKED_ROUTES[id] ?? []),
     };
   });
-
-  const orphans = source.days.filter((day) => !assigned.has(day.id));
-  if (orphans.length > 0 && built.length > 0) {
-    const last = built[built.length - 1];
-    last.days = [...last.days, ...orphans];
-    last.cover ??= findCover(last.days);
-    last.nights = nightTotals(last.days);
-  }
-
-  return built;
 }
 
-function findCover(days: Day[]): MediaRef | undefined {
-  for (const day of days) {
-    if (day.coverMedia) return day.coverMedia;
-  }
-  for (const day of days) {
-    for (const activity of day.activities) {
-      if (activity.media.length > 0) return activity.media[0];
-    }
-  }
-  return undefined;
+/** Explicit `mapMarks` win; otherwise every stop is marked, larger where we slept. */
+function resolveMarks(chapter: ChapterContent): MapMark[] {
+  if (chapter.mapMarks) return chapter.mapMarks.map(resolveMark);
+  return chapter.stops.map((stop) => ({ ...STOPS[stop.at], r: stop.slept ? 11 : 7 }));
+}
+
+function resolveMark(mark: ChapterMapMark): MapMark {
+  const point = "at" in mark ? STOPS[mark.at] : { x: mark.x, y: mark.y };
+  return { ...point, r: mark.r, w: mark.w };
+}
+
+function firstActivityCover(activities: Activity[]): MediaRef | undefined {
+  return activities.find((activity) => activity.coverMedia)?.coverMedia;
 }
 
 /**
- * The photograph that opens the site. Prefers a day cover that no chapter is
- * already using as its opener, so the reader never meets the same plate twice
- * a screen apart; falls back to the first chapter's cover only if every cover
- * is spoken for.
+ * The photograph that opens the site: the overview's own `frontispiece` slot
+ * if assigned. Otherwise an activity cover that no chapter is already using
+ * as its opener, so the reader never meets the same plate twice a screen
+ * apart — falling back to the first chapter's cover only if every cover is
+ * spoken for.
  */
-export function getFrontispiece(chapters: ChapterWithDays[]): MediaRef | undefined {
+export function getFrontispiece(
+  source: Trip,
+  chapters: ResolvedChapter[],
+): MediaRef | undefined {
+  if (source.overview.frontispiece) return source.overview.frontispiece;
   const openerIds = new Set(chapters.map((chapter) => chapter.cover?.id));
   for (const chapter of chapters) {
-    for (const day of chapter.days) {
-      if (day.coverMedia && !openerIds.has(day.coverMedia.id)) return day.coverMedia;
+    for (const activity of chapter.activities) {
+      if (activity.coverMedia && !openerIds.has(activity.coverMedia.id)) {
+        return activity.coverMedia;
+      }
     }
   }
   return chapters[0]?.cover;
 }
 
-/** Night totals for the whole trip. The planning page prose reads from this. */
+/** Night totals for the whole trip, summed from the chapters. The planning page prose reads from this. */
 export function getNightTotals(source: Trip = trip): NightTotals {
-  return nightTotals(source.days);
+  let tent = 0;
+  let bed = 0;
+  for (const chapter of source.chapters) {
+    tent += chapter.nights.tent;
+    bed += chapter.nights.bed;
+  }
+  return { tent, bed, total: tent + bed };
 }

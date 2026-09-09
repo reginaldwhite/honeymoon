@@ -95,16 +95,15 @@
   color-scheme: light;
 
   /*
-   * The sticky stack. The site header and the chapter bar pin one below the
-   * other, and if they do not meet exactly, page content flickers through the
-   * gap. Every height and offset involved reads from these three values —
-   * header `h-(--header-h)`, chapter bar `top-(--header-h) h-(--chapter-bar-h)`,
-   * chapter sections `scroll-mt-(--sticky-stack)` — so changing one number
-   * here changes all of them together.
+   * The pinned header's height, and the offset anchored sections keep clear
+   * of it. Both the public and admin headers are `h-(--header-h)`; chapter and
+   * day sections use `scroll-mt-(--sticky-stack)`, which is kept as its own
+   * name so anything else that ever pins below the header (a chapter bar did,
+   * once) only has to change this one value.
    */
-  --header-h: 56px;
-  --chapter-bar-h: 52px;
-  --sticky-stack: calc(var(--header-h) + var(--chapter-bar-h));
+  /* Two lines of type — brand over date range — needed more than 56px. */
+  --header-h: 68px;
+  --sticky-stack: var(--header-h);
 
   /* Classical roles */
   --background: #f3f2f2;
@@ -220,11 +219,30 @@
  * plate. Lifted from the design system's styles.css so the app carries no
  * dependency on that folder at build time.
  */
-.plate {
+.plate,
+.grade {
   filter: sepia(0.22) saturate(0.82) contrast(1.05);
+}
+.plate {
   box-sizing: border-box;
   border: 6px solid var(--surface);
   outline: 1px solid var(--divider);
+}
+
+/*
+ * Breaks an element out of the centred page column to the viewport edges.
+ * Works because every column on the site is centred (mx-auto), so half the
+ * column width minus half the viewport is exactly the distance to the edge.
+ * `overflow-x: clip` on <html> absorbs the scrollbar's width on platforms
+ * where 100vw includes it, without creating a scroll container that would
+ * break position: sticky.
+ */
+.full-bleed {
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+}
+html {
+  overflow-x: clip;
 }
 
 /* A hairline rule — the structure of the page is carried by these. */
@@ -233,20 +251,6 @@
   border: 0;
   margin: 1.15rem 0;
   background: var(--divider);
-}
-
-/* The chapter-bar chip: an outlined small label, never filled with solid accent. */
-.tag {
-  display: inline-flex;
-  align-items: center;
-  font-size: 11px;
-  letter-spacing: 0.02em;
-  padding: 3px 10px;
-  border-radius: calc(var(--radius) * 0.75);
-}
-.tag-outline {
-  border: 1px solid var(--accent);
-  color: var(--accent);
 }
 
 /*

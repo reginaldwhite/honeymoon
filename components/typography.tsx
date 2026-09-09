@@ -48,3 +48,14 @@ export function SmallCaps({
     </Tag>
   );
 }
+
+/** A caption beneath a plate, at the design system's figcaption size. */
+export function PlateCaption({ className, children }: { className?: string; children: ReactNode }) {
+  return (
+    <figcaption
+      className={cn("mt-1.5 max-w-[52ch] text-[11px] leading-[1.5] text-muted-foreground", className)}
+    >
+      {children}
+    </figcaption>
+  );
+}

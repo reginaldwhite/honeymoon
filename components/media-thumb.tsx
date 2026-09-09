@@ -4,7 +4,7 @@ import { MediaPlaceholder } from "./media-placeholder";
 import { MediaLightboxTrigger } from "./media-lightbox-trigger";
 
 /**
- * Renders a single photo/video attached to an Activity or Day.
+ * Renders a single photo/video from anywhere in the trip.
  *
  * Where the bytes come from is decided server-side by resolveMedia — the local
  * library in development, signed Cloudinary URLs otherwise — so

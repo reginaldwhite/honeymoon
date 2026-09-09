@@ -27,8 +27,13 @@ export function NavLinks() {
             href={link.href}
             aria-current={isActive ? "page" : undefined}
             className={cn(
-              "shrink-0 font-heading text-xs uppercase tracking-wide no-underline transition-colors sm:text-sm",
-              isActive ? "text-accent" : "text-muted-foreground hover:text-foreground",
+              // An outlined pill, the way every other affordance in this theme
+              // is drawn: the current view carries an accent hairline rather
+              // than a filled tab.
+              "shrink-0 rounded-md border px-3 py-2 font-heading text-sm no-underline transition-colors",
+              isActive
+                ? "border-accent text-accent"
+                : "border-transparent text-foreground hover:text-accent",
             )}
           >
             {link.label}

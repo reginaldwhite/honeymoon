@@ -1,12 +1,12 @@
-import type { ChapterWithDays } from "@/content/chapters";
+import type { ResolvedChapter } from "@/content/chapters";
 import { SmallCaps } from "./typography";
 
 /**
  * Nights per place, drawn as hairline bars.
  *
- * Reads each chapter's derived `nights`, which are summed from where its days
- * ended rather than from `days.length` — a chapter's day count includes the
- * day we arrived and the day we left, which are not nights spent there.
+ * Reads each chapter's authored `nights` rather than its day count — a
+ * chapter's days include the day we arrived and the day we left, which are
+ * not nights spent there.
  *
  * Camping and lodging are distinguished by stroke — solid for a tent, dashed
  * for a bed — rather than by two accent colors, because this is a mono palette
@@ -24,7 +24,7 @@ const BED_STROKE = { border: "1px dashed var(--accent)" } as const;
 export function NightsChart({
   chapters,
 }: {
-  chapters: Pick<ChapterWithDays, "id" | "chip" | "nights">[];
+  chapters: Pick<ResolvedChapter, "id" | "chip" | "nights">[];
 }) {
   const max = Math.max(1, ...chapters.map((c) => c.nights.tent + c.nights.bed));
 

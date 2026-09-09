@@ -2,7 +2,7 @@ import type { Trip } from "./types";
 import tripData from "./trip-data.json";
 
 /**
- * All trip content — days, activities, media and the planning case study —
+ * All trip content — chapters, activities, media and the planning case study —
  * lives in trip-data.json rather than hand-written TypeScript, so the local
  * admin tool (app/admin) can read and write it as plain JSON without risking
  * hand-formatted source. This file just re-exports it with the proper type.

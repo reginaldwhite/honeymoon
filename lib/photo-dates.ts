@@ -1,30 +1,26 @@
 /**
- * Known-bad camera clock corrections: some photos were taken with a camera
- * whose date hadn't been set correctly, so their file timestamps land on the
- * wrong calendar day. Map the raw captured date (YYYY-MM-DD) to the real date
- * the photos were actually taken.
+ * Which calendar day a library file belongs to, from its timestamp.
+ *
+ * Two kinds of timestamp are known to be wrong and are treated as UNKNOWN
+ * rather than corrected: a camera whose clock was never set stamps everything
+ * 1 January, and one batch is stamped 13 June, after the trip ended. Neither
+ * has a single right answer, so those files are offered as a pool at the end
+ * of the picker instead of being filed under a guessed day.
  */
-const DATE_CORRECTIONS: Record<string, string> = {
-  "2009-01-01": "2009-06-01",
-};
 
-/** Applies known camera-clock corrections to a YYYY-MM-DD date string. */
-function correctCaptureDate(dateKey: string): string {
-  return DATE_CORRECTIONS[dateKey] ?? dateKey;
-}
-
-/** Extracts the corrected YYYY-MM-DD date key from an ISO timestamp (e.g. file mtime). */
+/** The YYYY-MM-DD date key from an ISO timestamp (e.g. a file's mtime). */
 export function captureDateKey(isoString: string): string {
-  return correctCaptureDate(isoString.slice(0, 10));
+  return isoString.slice(0, 10);
 }
 
-/**
- * Dates whose timestamp is known bad with no single correct replacement (trip
- * ended June 10 2009; these could belong to any day). Shown as a shared pool
- * on every day's editor instead of grouped under a specific day.
- */
 const UNCERTAIN_DATES = new Set(["2009-06-13"]);
 
+/** A date the timestamp cannot be trusted for: a reset camera clock (1/1) or a known-bad batch. */
 export function isUncertainDate(dateKey: string): boolean {
-  return UNCERTAIN_DATES.has(dateKey);
+  return dateKey.endsWith("-01-01") || UNCERTAIN_DATES.has(dateKey);
+}
+
+/** Order for the unknown-date pools: the 1/1 files always come last. */
+export function uncertainOrder(dateKey: string): number {
+  return dateKey.endsWith("-01-01") ? 1 : 0;
 }

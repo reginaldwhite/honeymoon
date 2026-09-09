@@ -1,13 +1,13 @@
 import Link from "next/link";
 import { readTrip } from "@/lib/trip-repository";
-import { getAllMedia } from "@/lib/content";
+import { getAllActivities, getAllMedia, getTripDates } from "@/lib/content";
 import { findMediaSourceFile } from "@/lib/media-source";
 
 export default async function AdminHomePage() {
   const trip = await readTrip();
-  const days = trip.days;
-  const daysWithTitle = days.filter((d) => d.title).length;
-  const daysWithActivities = days.filter((d) => d.activities.length > 0).length;
+  const activities = getAllActivities(trip);
+  const titled = activities.filter((a) => a.title).length;
+  const dayCount = getTripDates(trip).length;
 
   const media = getAllMedia(trip);
   const staged = media.filter((m) => findMediaSourceFile(m.publicId, m.kind)).length;
@@ -21,8 +21,8 @@ export default async function AdminHomePage() {
       href: "/admin/itinerary",
       title: "Itinerary editor",
       description:
-        "The trip page as the reader sees it — overview, chapters, days — with Edit on each part.",
-      stat: `${days.length} days · ${daysWithTitle} titled · ${daysWithActivities} with activities`,
+        "The trip page as the reader sees it — the opening, then each chapter and its activities.",
+      stat: `${trip.chapters.length} chapters · ${activities.length} activities (${titled} titled) · ${dayCount} days`,
     },
     {
       href: "/admin/library",

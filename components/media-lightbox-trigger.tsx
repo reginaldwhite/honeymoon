@@ -3,13 +3,15 @@
 import { Play } from "lucide-react";
 import type { MediaKind } from "@/content/types";
 import { Lightbox } from "@/components/ui/lightbox";
+import { cn } from "@/lib/utils";
 
 /*
- * eslint-disable @next/next/no-img-element -- These are signed, already
- * format- and quality-negotiated Cloudinary URLs delivered with an explicit
+ * eslint-disable @next/next/no-img-element -- These URLs come resolved from
+ * lib/media-delivery.ts, already sized and format-negotiated (pre-rendered
+ * WebP files, or signed Cloudinary URLs) and delivered with an explicit
  * srcset. Routing them through next/image would either strip the srcset (it
- * emits none for `unoptimized` sources) or proxy signed URLs through a second
- * optimizer, doubling egress for no benefit.
+ * emits none for `unoptimized` sources) or run gated, already-optimized bytes
+ * through a second optimizer for no benefit.
  */
 
 interface MediaLightboxTriggerProps {
@@ -36,14 +38,17 @@ export function MediaLightboxTrigger({
   caption,
   width,
   height,
-  className = "",
+  className,
   priority = false,
 }: MediaLightboxTriggerProps) {
   return (
     <Lightbox
       label={alt}
       triggerLabel={kind === "video" ? `Play video: ${alt}` : `View larger: ${alt}`}
-      triggerClassName={`group relative block w-full overflow-hidden rounded-md focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none ${className}`}
+      triggerClassName={cn(
+        "group relative block w-full overflow-hidden rounded-md focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none",
+        className,
+      )}
       trigger={
         <>
           {thumbSrc ? (

@@ -1,5 +1,5 @@
 import { interests } from "@/content/interests";
-import type { Day, Trip } from "@/content/types";
+import type { Trip } from "@/content/types";
 
 export interface TimeBudgetCategory {
   category: string;
@@ -7,22 +7,13 @@ export interface TimeBudgetCategory {
 }
 
 const UNTAGGED_LABEL = "Other activities";
-const BUFFER_LABEL = "Unstructured buffer";
-
-/** Hours actually booked on a day, summed from its activity durations. */
-export function bookedHoursForDay(day: Day): number {
-  const minutes = day.activities.reduce((total, a) => total + (a.durationMinutes || 0), 0);
-  return minutes / 60;
-}
 
 /**
- * The trip's time budget, derived from the itinerary rather than hand-entered.
+ * The trip's time budget, derived from the story rather than hand-entered.
  *
  * An activity's duration is split evenly across the interests it is tagged
  * with, so a two-hour activity tagged "hiking" and "views" contributes an hour
- * to each and the categories still add up to the real booked total. Days
- * contribute their unstructured buffer hours to a final category, which is the
- * number the case study is actually about.
+ * to each and the categories still add up to the real booked total.
  */
 export function getTimeBudget(trip: Trip): TimeBudgetCategory[] {
   const labelBySlug = new Map(interests.map((interest) => [interest.slug, interest.label]));
@@ -33,12 +24,8 @@ export function getTimeBudget(trip: Trip): TimeBudgetCategory[] {
     hoursByCategory.set(category, (hoursByCategory.get(category) ?? 0) + hours);
   };
 
-  let bufferHours = 0;
-
-  for (const day of trip.days) {
-    bufferHours += day.planningNotes.bufferHours || 0;
-
-    for (const activity of day.activities) {
+  for (const chapter of trip.chapters) {
+    for (const activity of chapter.activities) {
       const hours = (activity.durationMinutes || 0) / 60;
       if (hours <= 0) continue;
 
@@ -53,15 +40,7 @@ export function getTimeBudget(trip: Trip): TimeBudgetCategory[] {
     }
   }
 
-  const categories = [...hoursByCategory.entries()]
+  return [...hoursByCategory.entries()]
     .map(([category, hours]) => ({ category, hours: Math.round(hours * 10) / 10 }))
     .sort((a, b) => b.hours - a.hours);
-
-  // Buffer is always last regardless of size — it is the baseline the other
-  // categories are being compared against, not just another activity type.
-  if (bufferHours > 0) {
-    categories.push({ category: BUFFER_LABEL, hours: Math.round(bufferHours * 10) / 10 });
-  }
-
-  return categories;
 }

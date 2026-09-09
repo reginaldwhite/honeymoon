@@ -4,7 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "prebuild": "tsx scripts/check-media.ts",
     "build": "next build",
+    "build-media": "tsx scripts/build-media.ts",
     "start": "next start",
     "lint": "eslint",
     "upload-media": "tsx scripts/upload-media.ts"

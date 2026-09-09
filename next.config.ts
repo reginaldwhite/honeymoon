@@ -17,6 +17,14 @@ const nextConfig: NextConfig = {
           { key: "X-Content-Type-Options", value: "nosniff" },
         ],
       },
+      {
+        // The shipped photographs (lib/media-manifest.ts). Their filenames
+        // carry a content hash, so a browser may keep them for good; `private`
+        // because the proxy gates them and a shared cache must not serve them
+        // to the next visitor.
+        source: "/media/:path*",
+        headers: [{ key: "Cache-Control", value: "private, max-age=31536000, immutable" }],
+      },
     ];
   },
 };

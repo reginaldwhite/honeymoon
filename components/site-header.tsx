@@ -14,7 +14,7 @@ import { SmallCaps } from "./typography";
  */
 export function SiteHeader() {
   const range = getTripDateRange();
-  // The range is derived from the days, so the year is too.
+  // The range is derived from the activities, so the year is too.
   const year = range ? range.end.slice(0, 4) : null;
 
   return (

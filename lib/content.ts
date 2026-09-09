@@ -1,22 +1,35 @@
 import { trip } from "@/content/trip";
-import type { MediaRef, Trip } from "@/content/types";
+import type { Activity, ChapterContent, MediaRef, Trip } from "@/content/types";
+import { distinctDates } from "@/content/chapters";
 
-/** Flat list of every MediaRef across all days/activities/cover images. */
-export function getAllMedia(source: Trip = trip): MediaRef[] {
+/** Every activity in the trip, chapter by chapter, in authored order. */
+export function getAllActivities(source: Trip = trip): Activity[] {
+  return source.chapters.flatMap((chapter) => chapter.activities);
+}
+
+/** Every MediaRef in one chapter: its hero, then each activity's cover and rows. */
+export function getChapterMedia(chapter: ChapterContent): MediaRef[] {
   const media: MediaRef[] = [];
-  for (const day of source.days) {
-    if (day.coverMedia) media.push(day.coverMedia);
-    for (const activity of day.activities) {
-      media.push(...activity.media);
-    }
+  if (chapter.heroMedia) media.push(chapter.heroMedia);
+  for (const activity of chapter.activities) {
+    if (activity.coverMedia) media.push(activity.coverMedia);
+    media.push(...activity.media);
   }
   return media;
 }
 
+/** Flat list of every MediaRef: the frontispiece, then every chapter's. */
+export function getAllMedia(source: Trip = trip): MediaRef[] {
+  return [
+    ...(source.overview.frontispiece ? [source.overview.frontispiece] : []),
+    ...source.chapters.flatMap(getChapterMedia),
+  ];
+}
+
 /**
  * Lookup index for the build-time trip. Built once per module instance rather
- * than re-walking every day for each lookup — the planning page resolves one
- * media id per principle.
+ * than re-walking every chapter for each lookup — the planning page resolves
+ * one media id per principle.
  */
 let mediaIndex: Map<string, MediaRef> | null = null;
 
@@ -30,17 +43,19 @@ export function getMediaById(id: string): MediaRef | undefined {
   return getMediaIndex().get(id);
 }
 
+/** The distinct dates the trip's activities fall on, in order. */
+export function getTripDates(source: Trip = trip): string[] {
+  return distinctDates(getAllActivities(source));
+}
+
 /**
- * First and last dates of the trip, derived from the days themselves. Nothing
- * stores these, so they cannot drift out of sync with the itinerary.
- * Days are persisted in date order, so the ends of the array are the range.
+ * First and last dates of the trip, derived from the activities themselves.
+ * Nothing stores these, so they cannot drift out of sync with the story.
  */
 export function getTripDateRange(
   source: Trip = trip,
 ): { start: string; end: string } | null {
-  if (source.days.length === 0) return null;
-  return {
-    start: source.days[0].date,
-    end: source.days[source.days.length - 1].date,
-  };
+  const dates = getTripDates(source);
+  if (dates.length === 0) return null;
+  return { start: dates[0], end: dates[dates.length - 1] };
 }

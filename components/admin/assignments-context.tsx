@@ -6,19 +6,34 @@ import type { Assignment } from "@/lib/trip-repository";
 interface AssignmentsContextValue {
   /** Every assignment across the whole trip, keyed by library path. */
   assignments: Record<string, Assignment>;
-  /** `${dayId}::${target}` -> readable name, for showing where a photo already lives. */
+  /** `${ownerId}::${target}` -> readable name, for showing where a photo already lives. */
   targetLabels: Record<string, string>;
-  /** dayId -> ISO date, so a picker can fetch the right day's photos from its target key. */
-  dayDates: Record<string, string>;
+  /**
+   * `${ownerId}::${target}` -> the path down to that slot on this page, for
+   * the picker's heading: chapter, day, activity, slot. Only the slots on the
+   * page being edited are here.
+   */
+  targetPaths: Record<string, string[]>;
+  /**
+   * The dates of the chapter being edited, if any. The picker shows the whole
+   * library and highlights the days that fall in this range.
+   */
+  chapterDates: string[];
+  /**
+   * `${ownerId}::${target}` -> the date the picker should open on: an
+   * activity's own date, a chapter's first day, the trip's first day for the
+   * opening.
+   */
+  defaultDateByTarget: Record<string, string>;
 }
 
 const AssignmentsContext = createContext<AssignmentsContextValue | null>(null);
 
 /**
  * The trip's photo assignments, held once for the whole itinerary editor.
- * Every "Add image" picker on the page reads from this, so sixteen days'
- * worth of pickers don't each carry their own copy — and the photo *library*
- * is not here at all: each picker fetches its day's files when it opens.
+ * Every "Add image" picker on the page reads from this, so a chapter's worth
+ * of pickers don't each carry their own copy — and the photo *library* is not
+ * here at all: the pickers fetch it once when the first one opens.
  */
 export function AssignmentsProvider({
   value,

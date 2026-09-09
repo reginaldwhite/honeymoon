@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { trip } from "@/content/trip";
-import { getChaptersWithDays, getNightTotals } from "@/content/chapters";
-import { getMediaById } from "@/lib/content";
+import { getChapters, getNightTotals } from "@/content/chapters";
+import { getMediaById, getTripDates } from "@/lib/content";
 import { getTimeBudget } from "@/lib/time-budget";
 import { MediaThumb } from "@/components/media-thumb";
 import { NightsChart } from "@/components/nights-chart";
@@ -15,11 +15,12 @@ export const metadata: Metadata = {
 
 export default function PlanningPage() {
   const { headline, intro, nightsNote, timeBudgetNote, principles, tradeoffs } = trip.planning;
-  const chapters = getChaptersWithDays();
+  const chapters = getChapters();
   const nights = getNightTotals();
-  // Derived from the itinerary's own activity durations and buffer hours, so
-  // the case study's numbers can never disagree with the timeline they describe.
+  // Derived from the story's own activity durations, so the case study's
+  // numbers can never disagree with the timeline they describe.
   const timeBudget = getTimeBudget(trip);
+  const dayCount = getTripDates().length;
 
   return (
     <div className="pb-24">
@@ -83,7 +84,7 @@ export default function PlanningPage() {
           <div className="flex flex-col gap-3">
             <Eyebrow>Where the days went</Eyebrow>
             <p className="max-w-[32ch] text-[15px] leading-[1.7] text-pretty">
-              {nights.tent} nights in a tent, {nights.bed} in a bed, across {trip.days.length}{" "}
+              {nights.tent} nights in a tent, {nights.bed} in a bed, across {dayCount}{" "}
               days.{nightsNote && ` ${nightsNote}`}
             </p>
           </div>
