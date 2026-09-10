@@ -117,8 +117,10 @@ The site is meant to be shared by link with specific people, not discovered:
 
 ## Deploying
 
-The site is deployed from this folder with the Vercel CLI; there is no git remote.
-Once, per machine: `vercel link --project honeymoon`, then add `SITE_PASSWORD_HASH`
+The site is deployed from this folder with the Vercel CLI. The GitHub remote
+(`reginaldwhite/honeymoon`) is for backup and history only — do not connect the Vercel
+project to it, because `public/media/` is not in git and a git-triggered build would fail
+the media check. Once, per machine: `vercel link --project honeymoon`, then add `SITE_PASSWORD_HASH`
 and `SESSION_SECRET` as production env vars (`vercel env add … production`). Never set
 `PHOTO_SOURCE_DIR` there. Then, after every content change:
 
