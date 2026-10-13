@@ -97,6 +97,11 @@ The site is meant to be shared by link with specific people, not discovered:
 
 - `proxy.ts` gates every non-`/admin` route behind a bcrypt password and an encrypted
   `iron-session` cookie, with a per-IP attempt throttle.
+- A link can carry the password: `https://honeymoon-lake.vercel.app/?key=<password>`
+  (URL-encode it if it has spaces or symbols). The gate checks it like the form would,
+  sets the cookie, and redirects to the same address without the key. The recipient's
+  browser history keeps the original link, so share it only with people who should
+  have the password anyway.
 - The shipped photographs under `/media` are static files, but the proxy's matcher
   covers them, so they need the same cookie as a page, and they are served
   `Cache-Control: private` so no shared cache holds them.

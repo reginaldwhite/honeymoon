@@ -12,7 +12,7 @@ const WINDOW_MS = 10 * 60 * 1000;
 
 const attempts = new Map<string, { count: number; resetAt: number }>();
 
-export function checkLoginAllowed(key: string): { allowed: boolean; retryAfterMinutes: number } {
+export function checkLoginAttempt(key: string): { allowed: boolean; retryAfterMinutes: number } {
   const now = Date.now();
   const record = attempts.get(key);
 
